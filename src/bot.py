@@ -22,7 +22,9 @@ async def set_up_logger(path_to_log_file: Path):
         path_to_log_file.touch(exist_ok=True)
 
     with open(path_to_log_file, "w") as f:
-        f.write(f"Log started at {datetime.datetime.now().astimezone()}")
+        f.write(
+            f"Bot has started at {datetime.datetime.now().astimezone()}"
+        )
 
     basicConfig(
         level=INFO,

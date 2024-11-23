@@ -10,7 +10,7 @@ from aiogram.webhook.aiohttp_server import (
     SimpleRequestHandler,
     setup_application,
 )
-from handlers import auth_handlers
+from handlers import auth_handlers, kitchen_handler
 
 
 async def on_startup(bot: Bot) -> None:
@@ -41,6 +41,7 @@ async def main():
     bot = Bot(token=BOT_TOKEN)
     dp = Dispatcher()
     dp.include_router(auth_handlers.router)
+    dp.include_router(kitchen_handler.router)
     dp.startup.register(on_startup)
     app = web.Application()
     webhook_requests_handler = SimpleRequestHandler(

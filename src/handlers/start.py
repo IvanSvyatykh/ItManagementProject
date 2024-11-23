@@ -1,14 +1,17 @@
 from json import load
-from aiogram import types, Router
+from aiogram import types, Router, F
 from aiogram.filters import Command
-from aiogram.types import FSInputFile
+from aiogram.fsm.context import FSMContext
+from handlers.supports.answer import GREETING_MESS
+from handlers.supports.state_machine import UserState
+from handlers.supports.keybords import get_phone_number_keyboard
 
 router = Router()
 
-with open(r"src/handlers/answer.json", "r") as data_for_mess:
-    mes_data = load(data_for_mess)
-
 
 @router.message(Command("start"))
-async def start(message: types.Message):
-    await message.answer(text=mes_data["greeting_answer"])
+async def start_dialog(message: types.Message, state: FSMContext):
+    await message.answer(
+        text=GREETING_MESS, reply_markup=await get_phone_number_keyboard()
+    )
+    await state.set_state(UserState.phone_number)

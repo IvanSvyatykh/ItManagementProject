@@ -43,7 +43,7 @@ async def get_kitchen_keyboard() -> InlineKeyboardMarkup:
         text="Бронь", callback_data="booking"
     )
     keyboard_builder.button(
-        text="Статистика", callback_data="kitchen_statistics"
+        text="Статистика", callback_data="statistics"
     )
     return keyboard_builder.adjust(1).as_markup(
         one_time_keyboard=True, resize_keyboard=True

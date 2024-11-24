@@ -50,4 +50,7 @@ async def get_kitchen_keyboard() -> InlineKeyboardMarkup:
     )
 
 
-
+async def get_back_keyboard() -> InlineKeyboardMarkup:
+    keyboard_builder = InlineKeyboardBuilder()
+    keyboard_builder.button(text="Назад", callback_data="update_kitchen_info")
+    return keyboard_builder.as_markup(one_time_keyboard=True, resize_keyboard=True)

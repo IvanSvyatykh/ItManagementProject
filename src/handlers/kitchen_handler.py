@@ -10,7 +10,7 @@ from handlers.supports.answer import (
     BOOKING_MESS,
 )
 from services.kitchen_service import get_people_on_kitchen
-from handlers.supports.keybords import get_kitchen_keyboard
+from handlers.supports.keybords import get_kitchen_keyboard, get_back_keyboard
 
 router = Router()
 
@@ -41,6 +41,23 @@ async def update_kitchen_info(callback_query: types.CallbackQuery, state: FSMCon
         chat_id=callback_query.message.chat.id,
         message_id=message_id,
         reply_markup=await get_kitchen_keyboard(),
+    )
+
+
+@router.callback_query(lambda c: c.data == "kitchen_statistics")
+async def kitchen_statistics(callback_query: types.CallbackQuery, state: FSMContext):
+    user_data = await state.get_data()
+    message_id = user_data.get("message_id")
+
+    path = "src/files/kitchen_photo/kitchen_photo_temp.jpg"
+    await callback_query.message.bot.edit_message_media(
+        media=types.InputMediaPhoto(
+            media=FSInputFile("src/files/stat/stat_temp.png"),
+            caption=STATISTIC_MESS
+        ),
+        chat_id=callback_query.message.chat.id,
+        message_id=message_id,
+        reply_markup=await get_back_keyboard(),
     )
 
 

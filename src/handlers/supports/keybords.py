@@ -24,11 +24,33 @@ async def get_phone_number_keyboard() -> ReplyKeyboardMarkup:
     return markup
 
 
+async def get_start_keyboard() -> ReplyKeyboardMarkup:
+    keyboard_builder = InlineKeyboardBuilder()
+    keyboard_builder.button(
+        text="Начать", callback_data="kitchen"
+    )
+    return keyboard_builder.adjust(1).as_markup(
+        one_time_keyboard=True, resize_keyboard=True
+    )
+
+
 async def get_kitchen_keyboard() -> InlineKeyboardMarkup:
     keyboard_builder = InlineKeyboardBuilder()
     keyboard_builder.button(
         text="Обновить", callback_data="update_kitchen_info"
     )
+    keyboard_builder.button(
+        text="Бронь", callback_data="booking"
+    )
+    keyboard_builder.button(
+        text="Статистика", callback_data="statistics"
+    )
     return keyboard_builder.adjust(1).as_markup(
         one_time_keyboard=True, resize_keyboard=True
     )
+
+
+async def get_back_keyboard() -> InlineKeyboardMarkup:
+    keyboard_builder = InlineKeyboardBuilder()
+    keyboard_builder.button(text="Назад", callback_data="update_kitchen_info")
+    return keyboard_builder.as_markup(one_time_keyboard=True, resize_keyboard=True)

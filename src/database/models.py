@@ -5,7 +5,9 @@ Base = declarative_base()
 
 
 class MonitoringEvents(Base):
-    __tablename__ = "my_view"
+    __tablename__ = "monitoring_events"
+    __table_args__ = {"schema": "analytics"}
+    id = Column(Integer, primary_key=True)
     timestamp = Column(TIMESTAMP)
     camera_id = Column(Integer)
     image_key = Column(String)

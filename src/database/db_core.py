@@ -2,6 +2,8 @@ from sqlalchemy import Connection, Engine, create_engine
 from sqlalchemy.orm import sessionmaker, Session
 from contextlib import contextmanager
 
+from database.repository import MonitoringEventsRepository
+
 
 class PostgresConfig:
 
@@ -16,7 +18,7 @@ class PostgresConfig:
         self.__url = f"postgresql+psycopg2://{user_name}:{password}@{domain}:{port}/{db_name}"
 
     def create_engine(self) -> None:
-        self.__engine = create_engine(self.__url)
+        self.__engine = create_engine(self.__url, echo=True)
 
     @property
     def engine(self) -> Engine:
@@ -46,3 +48,7 @@ class UnitOfWork:
             raise
         finally:
             self._session.close()
+
+    @property
+    def monitoring_events_repository(self) -> MonitoringEventsRepository:
+        return MonitoringEventsRepository(self._session)

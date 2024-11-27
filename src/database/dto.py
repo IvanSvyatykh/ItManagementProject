@@ -1,4 +1,5 @@
 from datetime import datetime
+import json
 
 from database.models import MonitoringEvents
 
@@ -11,6 +12,7 @@ class CameraEventDto:
         self.__camera_id = monitoring_events.camera_id
         self.__scenario_id = monitoring_events.scenario_id
         self.__image_key = monitoring_events.image_key
+        self.__boxes_cords = monitoring_events.add_data
 
     @property
     def camera_id(self) -> int:
@@ -27,3 +29,7 @@ class CameraEventDto:
     @property
     def image_key(self) -> str:
         return self.__image_key
+
+    @property
+    def boxes_cords(self) -> dict:
+        return self.__boxes_cords

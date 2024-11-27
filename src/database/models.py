@@ -10,4 +10,5 @@ class MonitoringEvents(Base):
     id = Column(Integer, primary_key=True)
     timestamp = Column(TIMESTAMP)
     camera_id = Column(Integer)
+    scenario_id = Column(Integer)
     image_key = Column(String)

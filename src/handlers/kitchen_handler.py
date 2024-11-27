@@ -15,9 +15,11 @@ from handlers.supports.keybords import get_kitchen_keyboard
 router = Router()
 
 
-async def send_kitchen_info(chat_id: str, state: FSMContext) -> None:
+async def send_kitchen_info(
+    chat_id: str, state: FSMContext, user_id: str
+) -> None:
     bot = Bot(token=BOT_TOKEN)
-    kitchen_info = await get_people_on_kitchen()
+    kitchen_info = await get_people_on_kitchen(22726, 255, user_id)
     message = await bot.send_photo(
         chat_id=chat_id,
         photo=FSInputFile(kitchen_info[1]),
@@ -27,31 +29,21 @@ async def send_kitchen_info(chat_id: str, state: FSMContext) -> None:
     await state.update_data(message_id=message.message_id)
 
 
-@router.callback_query(lambda c: c.data == "update_kitchen_info")
-async def update_kitchen_info(callback_query: types.CallbackQuery, state: FSMContext):
+@router.callback_query(
+    lambda c: c.data == "kitchen" or c.data == "update_kitchen_info"
+)
+async def get_kitchen_info(
+    callback_query: types.CallbackQuery, state: FSMContext
+):
     user_data = await state.get_data()
-    message_id = user_data.get("message_id")
-
-    kitchen_info = await get_people_on_kitchen()
-    await callback_query.message.bot.edit_message_media(
-        media=types.InputMediaPhoto(
-            media=FSInputFile(kitchen_info[1]),
-            caption=KITCHEN_PHOTO_CAPTURE.format(kitchen_info[0]),
-        ),
-        chat_id=callback_query.message.chat.id,
-        message_id=message_id,
-        reply_markup=await get_kitchen_keyboard(),
-    )
-
-
-@router.callback_query(lambda c: c.data == "kitchen")
-async def get_kitchen_info(callback_query: types.CallbackQuery, state: FSMContext):
-    user_data = await state.get_data()
-    # Ну /kitchen и /kitchen_stat не существует... нужна ли тут вообще какая-то обработка
     if (
-            "phone_number" not in user_data
-            or user_data["phone_number"] is None
+        "phone_number" not in user_data
+        or user_data["phone_number"] is None
     ):
         await callback_query.message.answer(text=NOT_ALLOWED_FUNC)
     else:
-        await send_kitchen_info(callback_query.message.chat.id, state)
+        await send_kitchen_info(
+            callback_query.message.chat.id,
+            state,
+            callback_query.message.from_user.id,
+        )

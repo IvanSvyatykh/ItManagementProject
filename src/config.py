@@ -1,3 +1,4 @@
+import ast
 import os
 from dotenv import load_dotenv
 
@@ -12,6 +13,9 @@ POSTGRES_PASSWORD = os.getenv("POSTGRES_PASSWORD")
 POSTGRES_PORT = os.getenv("POSTGRES_PORT")
 POSTGRES_DOMAIN = os.getenv("POSTGRES_DOMAIN")
 POSTGRES_DB_NAME = os.getenv("POSTGRES_DB_NAME")
+SERVICE_ACCOUNT_FILE = os.getenv("SERVICE_ACCOUNT_FILE")
+SCOPES = ast.literal_eval(os.getenv("SCOPES"))
+CALENDAR_ID = os.getenv("CALENDAR_ID")
 
 #auth db
 AUTH_DB_NAME= os.getenv("AUTH_DB_NAME")

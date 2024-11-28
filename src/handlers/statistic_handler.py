@@ -3,7 +3,7 @@ from aiogram.types import CallbackQuery
 from aiogram.fsm.context import FSMContext
 from aiogram.types import FSInputFile
 from handlers.supports.answer import STATISTIC_MESS
-from handlers.supports.keybords import get_back_keyboard
+from handlers.supports.keyboards import get_back_keyboard
 
 router = Router()
 

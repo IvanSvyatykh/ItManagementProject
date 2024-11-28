@@ -7,7 +7,7 @@ from handlers.supports.answer import (
     PHONE_NUMBER_NOT_EXISTS,
 )
 from handlers.supports.state_machine import UserState
-from handlers.supports.keybords import get_phone_number_keyboard, get_start_keyboard
+from handlers.supports.keyboards import get_phone_number_keyboard, get_start_keyboard
 from services.auth_service import check_phone_number
 
 router = Router()

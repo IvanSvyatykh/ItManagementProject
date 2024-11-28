@@ -4,6 +4,8 @@ from contextlib import contextmanager
 
 from database.repository import MonitoringEventsRepository
 
+from database.auth_repository import AuthRepository
+
 
 class PostgresConfig:
 
@@ -52,3 +54,8 @@ class UnitOfWork:
     @property
     def monitoring_events_repository(self) -> MonitoringEventsRepository:
         return MonitoringEventsRepository(self._session)
+
+    @property
+    def auth_repository(self) -> AuthRepository:
+        return AuthRepository(self._session)
+

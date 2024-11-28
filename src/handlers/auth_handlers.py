@@ -24,9 +24,9 @@ async def start_dialog(message: types.Message, state: FSMContext):
 @router.message(F.contact, UserState.phone_number)
 async def get_user_password(message: types.Contact, state: FSMContext):
     phone_number = message.contact.phone_number
-    if check_phone_number(phone_number):
+    if await check_phone_number(phone_number):
         await state.update_data(phone_number=phone_number)
         await message.answer(text=PHONE_NUMBER_EXISTS, reply_markup=await get_start_keyboard())
     else:
-        await message.answer(text=PHONE_NUMBER_NOT_EXISTS)
+        await message.answer(PHONE_NUMBER_NOT_EXISTS)
         await state.update_data(phone_number=None)

@@ -2,7 +2,6 @@ import asyncio
 import datetime
 from logging import basicConfig, INFO, FileHandler, StreamHandler
 from pathlib import Path
-import time
 from aiogram import Bot, Dispatcher
 from config import BOT_TOKEN, WEB_HOOK_URL, WEB_HOOK_PATH, WEB_SERVER_HOST
 from aiohttp import web

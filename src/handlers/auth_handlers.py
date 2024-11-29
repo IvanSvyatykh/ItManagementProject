@@ -7,7 +7,10 @@ from handlers.supports.answer import (
     PHONE_NUMBER_NOT_EXISTS,
 )
 from handlers.supports.state_machine import UserState
-from handlers.supports.keybords import get_phone_number_keyboard, get_start_keyboard
+from handlers.supports.keybords import (
+    get_phone_number_keyboard,
+    get_start_keyboard,
+)
 from services.auth_service import check_phone_number
 
 router = Router()
@@ -26,7 +29,10 @@ async def get_user_password(message: types.Contact, state: FSMContext):
     phone_number = message.contact.phone_number
     if await check_phone_number(phone_number):
         await state.update_data(phone_number=phone_number)
-        await message.answer(text=PHONE_NUMBER_EXISTS, reply_markup=await get_start_keyboard())
+        await message.answer(
+            text=PHONE_NUMBER_EXISTS,
+            reply_markup=await get_start_keyboard(),
+        )
     else:
         await message.answer(PHONE_NUMBER_NOT_EXISTS)
         await state.update_data(phone_number=None)

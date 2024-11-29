@@ -1,13 +1,11 @@
-from aiogram import Bot, types, Router
-from aiogram.filters import Command
+from aiogram import Bot, Router
 from aiogram.fsm.context import FSMContext
 from aiogram.types import FSInputFile
+from aiogram.types import CallbackQuery
 from config import BOT_TOKEN
 from handlers.supports.answer import (
     KITCHEN_PHOTO_CAPTURE,
     NOT_ALLOWED_FUNC,
-    STATISTIC_MESS,
-    BOOKING_MESS,
 )
 from services.kitchen_service import get_people_on_kitchen
 from handlers.supports.keybords import get_kitchen_keyboard
@@ -33,7 +31,7 @@ async def send_kitchen_info(
     lambda c: c.data == "kitchen" or c.data == "update_kitchen_info"
 )
 async def get_kitchen_info(
-    callback_query: types.CallbackQuery, state: FSMContext
+    callback_query: CallbackQuery, state: FSMContext
 ):
     user_data = await state.get_data()
     if (

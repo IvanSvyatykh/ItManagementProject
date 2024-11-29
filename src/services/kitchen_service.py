@@ -2,8 +2,7 @@ from pathlib import Path
 
 import requests
 from database.dto import CameraEventDto
-from database.repository import MonitoringEventsRepository
-from database.db_core import PostgresConfig, UnitOfWork
+from database.db_core import PostgresConfig, IsDBUnitOfWork
 from config import (
     POSTGRES_USER,
     POSTGRES_PASSWORD,
@@ -41,7 +40,7 @@ async def get_people_on_kitchen(
     )
 
     config.create_engine()
-    uow = UnitOfWork(config)
+    uow = IsDBUnitOfWork(config)
     with uow.start() as session:
         kitchen_event: CameraEventDto = (
             session.monitoring_events_repository.get_last_camera_event(

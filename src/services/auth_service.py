@@ -1,4 +1,4 @@
-from database.db_core import UnitOfWork
+from database.db_core import AuthDBUnitOfWork
 
 from config import (
     AUTH_DB_USER,
@@ -8,7 +8,6 @@ from config import (
     AUTH_DB_NAME,
 )
 from database.db_core import PostgresConfig
-from database.user_dto import UserDto
 
 
 async def check_phone_number(phone_num: str) -> bool:
@@ -21,7 +20,7 @@ async def check_phone_number(phone_num: str) -> bool:
     )
 
     config.create_engine()
-    uow = UnitOfWork(config)
+    uow = AuthDBUnitOfWork(config)
     with uow.start() as session:
         exists: bool = session.auth_repository.check_if_exists(
             phone_num,

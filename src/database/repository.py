@@ -1,3 +1,6 @@
+from datetime import datetime
+from typing import List
+from sqlalchemy import func
 from sqlalchemy.orm import Session
 
 from database.dto import CameraEventDto
@@ -41,3 +44,21 @@ class MonitoringEventsRepository:
         if latest_event is None:
             return None
         return CameraEventDto(latest_event)
+
+    def get_day_camera_event(
+        self, camera_id: int, scenario_id: int, target_date: datetime
+    ) -> List[CameraEventDto]:
+        event_by_date: List[MonitoringEvents] = (
+            self.session.query(MonitoringEvents)
+            .filter_by(
+                camera_id=camera_id,
+                scenario_id=scenario_id,
+            )
+            .filter(func.date(MonitoringEvents.timestamp) == target_date)
+            .order_by(MonitoringEvents.timestamp)
+            .all()
+        )
+        if event_by_date is None:
+            return None
+
+        return [CameraEventDto(event) for event in event_by_date]

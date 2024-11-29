@@ -20,8 +20,9 @@ async def __get_photo_of_kitchen(
     img_data = requests.get(
         f"https://api.platform-vision.is74.ru/analytics/images/draw/{kitchen_event.scenario_id}/{str(kitchen_event.timestamp).replace(' ', '%20')}/{kitchen_event.camera_id}/{kitchen_event.image_key}.jpg"
     ).content
+
     photo_path = Path(
-        f"src/data/kitchen_photo/kitchen_{user_id}_{str(kitchen_event.timestamp).replace(' ', '%20')}.jpg"
+        f"src/files/kitchen_photo/kitchen_{user_id}_{str(kitchen_event.timestamp).replace(' ', '%20')}.jpg"
     )
     with open(photo_path, "wb") as handler:
         handler.write(img_data)

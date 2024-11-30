@@ -3,6 +3,8 @@ from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
 from handlers.supports.answer import (
     GREETING_MESS,
+    MENU_MESSAGE,
+    NOT_ALLOWED_FUNC,
     PHONE_NUMBER_EXISTS,
     PHONE_NUMBER_NOT_EXISTS,
 )
@@ -36,3 +38,18 @@ async def get_user_password(message: types.Contact, state: FSMContext):
     else:
         await message.answer(PHONE_NUMBER_NOT_EXISTS)
         await state.update_data(phone_number=None)
+
+
+@router.callback_query(lambda c: c.data == "menu")
+async def get_menu(callback_query: types.CallbackQuery, state: FSMContext):
+    user_data = await state.get_data()
+    if (
+        "phone_number" not in user_data
+        or user_data["phone_number"] is None
+    ):
+        await callback_query.message.answer(text=NOT_ALLOWED_FUNC)
+    else:
+        await callback_query.message.answer(
+            text=MENU_MESSAGE,
+            reply_markup=await get_start_keyboard(),
+        )

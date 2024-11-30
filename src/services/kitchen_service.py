@@ -51,7 +51,7 @@ async def get_people_disribution_on_kitchen_by_day(
         y.append(len(event.boxes_cords["bboxes"]))
         x.append(event.timestamp + timedelta(hours=5))
 
-    path = Path(f"src/files/kitchen_photo/stat_{user_id}.png")
+    path = Path(f"src/files/stat/{user_id}_stat.png")
 
     await create_hist_of_disribution(y_data=y, x_data=x, path_to_png=path)
     return path

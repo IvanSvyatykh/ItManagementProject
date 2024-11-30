@@ -22,7 +22,7 @@ async def check_phone_number(phone_num: str) -> bool:
     config.create_engine()
     uow = AuthDBUnitOfWork(config)
     with uow.start() as session:
-        exists: bool = session.auth_repository.check_if_exists(
+        exists: bool = await session.auth_repository.check_if_exists(
             phone_num,
         )
 

@@ -42,7 +42,7 @@ async def get_people_disribution_on_kitchen_by_day(
     config.create_engine()
     uow = IsDBUnitOfWork(config)
     with uow.start() as session:
-        events = session.monitoring_events_repository.get_day_camera_event(
+        events = await session.monitoring_events_repository.get_day_camera_event(
             camera_id, scenario_id, date.date()
         )
     y = []
@@ -71,7 +71,7 @@ async def get_people_disribution_on_kitchen_by_week(
     config.create_engine()
     uow = IsDBUnitOfWork(config)
     with uow.start() as session:
-        events = session.monitoring_events_repository.get_day_camera_event(
+        events = await session.monitoring_events_repository.get_day_camera_event(
             camera_id, scenario_id, date.date()
         )
     y = []
@@ -101,7 +101,7 @@ async def get_people_on_kitchen(
     uow = IsDBUnitOfWork(config)
     with uow.start() as session:
         kitchen_event: CameraEventDto = (
-            session.monitoring_events_repository.get_last_camera_event(
+            await session.monitoring_events_repository.get_last_camera_event(
                 camera_id, scenario_id
             )
         )

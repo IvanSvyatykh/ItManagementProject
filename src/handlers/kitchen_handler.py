@@ -27,9 +27,7 @@ async def send_kitchen_info(
     await state.update_data(message_id=message.message_id)
 
 
-@router.callback_query(
-    lambda c: c.data == "kitchen" or c.data == "update_kitchen_info"
-)
+@router.callback_query(lambda c: c.data == "kitchen_info")
 async def get_kitchen_info(
     callback_query: CallbackQuery, state: FSMContext
 ):

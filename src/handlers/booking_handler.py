@@ -49,25 +49,44 @@ async def update_booking_message(callback_query: CallbackQuery, state: FSMContex
 
     current_time = datetime.now()
 
+    # Получаем статус комнаты
     room_status = await get_booking_status(room_name, current_time)
     booking_status = room_status['status']
     people_count = room_status['people_count']
-    next_booking_time = room_status['next_booking_time']
+    next_booking_times = room_status['next_booking_time']
 
-    message_text = BOOKING_STATUS_TEMPLATE.format(
-        room_name=room_name,
-        status=booking_status,
-        people_count=people_count,
-        next_booking_time=next_booking_time,
-    )
+    if next_booking_times:
+        first_event = next_booking_times[0]
+        events_text = f"{room_name} {first_event['start_time']} - {first_event['end_time']}\n"
+        other_events = [
+            f"{' ' * 30}{event['start_time']} - {event['end_time']}" for event in next_booking_times[1:]
+        ]
+        events_text += "\n".join(other_events)
+    else:
+        events_text = f"{room_name} На сегодня нет брони"
 
-    chat_id = callback_query.from_user.id
+    # Формируем итоговый текст сообщения
+    message_text = f"""{booking_status} [{people_count}] - {events_text}"""
+
     await bot.send_photo(
-        chat_id=chat_id,
-        photo=FSInputFile("C:/Users/insignificance/PycharmProjects/ItManagementProject/src/files/booking"
-                          "/Google_Calendar_icon.png"),
+        chat_id=callback_query.from_user.id,
+        photo=FSInputFile("src/files/booking/Google_Calendar_icon.png"),
         caption=message_text,
         reply_markup=await get_room_navigation_keyboard(),
+    )
+
+
+@router.callback_query(lambda c: c.data == "to_book")
+async def to_book_handler(callback_query: CallbackQuery, state: FSMContext):
+    await callback_query.message.delete()
+
+    google_calendar_url = "https://calendar.google.com/"
+    message_text = f"Перейдите по [ссылке]({google_calendar_url}), чтобы забронировать время."
+
+    await callback_query.message.answer(
+        text=message_text,
+        reply_markup=await get_main_keyboard(),
+        parse_mode="Markdown"
     )
 
 
@@ -146,7 +165,13 @@ async def handle_period_input(message: types.Message, state: FSMContext):
                 f" Нет событий."
             )
         else:
-            pages = split_message_into_pages("\n".join(events))
+            event_strings = [
+                f"{event.get('location', 'Без указания')} — "
+                f"{datetime.fromisoformat(event['start']['dateTime']).strftime('%Y-%m-%d %H:%M')} - "
+                f"{datetime.fromisoformat(event['end']['dateTime']).strftime('%H:%M')}"
+                for event in events
+            ]
+            pages = split_message_into_pages("\n".join(event_strings))
             if len(pages) == 1:
                 await message.answer(pages[0])
             else:
@@ -166,7 +191,14 @@ async def send_events_message(callback_query: CallbackQuery, start_date: datetim
                         f" Нет событий.")
     else:
         message_text = f"Список бронирования {start_date.strftime('%Y-%m-%d')} - {end_date.strftime('%Y-%m-%d')}:\n"
-        message_text += "\n".join(events)
+
+        event_strings = [
+            f"{event.get('location', 'Без указания')} — "
+            f"{datetime.fromisoformat(event['start']['dateTime']).strftime('%Y-%m-%d %H:%M')} - "
+            f"{datetime.fromisoformat(event['end']['dateTime']).strftime('%H:%M')}"
+            for event in events
+        ]
+        message_text += "\n".join(event_strings)
 
     await callback_query.message.edit_text(message_text, reply_markup=await get_main_keyboard())
 

@@ -63,9 +63,10 @@ async def get_room_navigation_keyboard() -> InlineKeyboardMarkup:
     keyboard_builder.button(text="←", callback_data="navigate_left")
     keyboard_builder.button(text="→", callback_data="navigate_right")
     keyboard_builder.button(text="Список брони", callback_data="booking_list")
+    keyboard_builder.button(text="Забронировать", callback_data="to_book")
     keyboard_builder.button(text="Меню", callback_data="menu")
 
-    return keyboard_builder.adjust(1, 2, 1).as_markup(resize_keyboard=True)
+    return keyboard_builder.adjust(1, 2, 2, 1).as_markup(resize_keyboard=True)
 
 
 async def get_period_selection_keyboard() -> InlineKeyboardMarkup:

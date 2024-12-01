@@ -6,8 +6,6 @@ from config import BOT_TOKEN
 from handlers.supports.answer import (
     KITCHEN_PHOTO_CAPTURE,
     NOT_ALLOWED_FUNC,
-    STATISTIC_MESS,
-    BOOKING_MESS,
 )
 from services.kitchen_service import get_people_on_kitchen
 from handlers.supports.keyboards import get_kitchen_keyboard

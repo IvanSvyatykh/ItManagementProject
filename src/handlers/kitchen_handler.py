@@ -18,9 +18,7 @@ async def send_kitchen_info(
     chat_id: str, state: FSMContext, user_id: str
 ) -> None:
     bot = Bot(token=BOT_TOKEN)
-    kitchen_info = await get_last_camera_event(
-        KITCHEN_ID, SCENARIO_ID, user_id
-    )
+    kitchen_info = await get_last_camera_event(KITCHEN_ID, SCENARIO_ID)
     message = await bot.send_photo(
         chat_id=chat_id,
         photo=FSInputFile(kitchen_info[1]),

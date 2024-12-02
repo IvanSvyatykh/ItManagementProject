@@ -6,7 +6,6 @@ from aiogram.types import (
     CallbackQuery,
 )
 from aiogram.fsm.context import FSMContext
-from aiogram.filters import Command
 from handlers.supports.state_machine import UserState
 from handlers.supports.keyboards import (
     get_main_keyboard,

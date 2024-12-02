@@ -5,6 +5,7 @@ from aiogram.types import CallbackQuery
 from aiogram.fsm.context import FSMContext
 from aiogram.types import FSInputFile
 from handlers.supports.answer import STATISTIC_MESS, NO_CAMERA_EVENTS
+from config import KITCHEN_ID, SCENARIO_ID
 from handlers.supports.keyboards import get_back_keyboard
 from services.kitchen_service import (
     get_people_disribution_on_kitchen_by_day,
@@ -18,8 +19,8 @@ async def kitchen_statistics(
     callback_query: CallbackQuery, state: FSMContext
 ):
     path: Path | None = await get_people_disribution_on_kitchen_by_day(
-        22726,
-        255,
+        KITCHEN_ID,
+        SCENARIO_ID,
         datetime.today() - timedelta(days=1),
         callback_query.message.from_user.id,
     )

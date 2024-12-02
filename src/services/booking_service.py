@@ -96,7 +96,7 @@ async def get_booking_status(room_name: str, scenario_id: int) -> dict:
     room_info = await get_last_camera_event(
         camera_id=ROOMS_ID[room_name], scenario_id=scenario_id
     )
-    status = "🟢" if room_info[0] == 0 else "🔴"
+    status = "🟢" if room_info["people_nums"] == 0 else "🔴"
     next_events = await get_next_event(room_name)
 
     return {

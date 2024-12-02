@@ -29,7 +29,13 @@ async def start_dialog(message: types.Message, state: FSMContext):
 
 @router.message(F.contact, UserState.phone_number)
 async def get_user_password(message: types.Contact, state: FSMContext):
-    phone_number = message.contact.phone_number
+    phone_number = (
+        str(message.contact.phone_number)
+        .replace("(", "")
+        .replace(")", "")
+        .replace("+", "")
+    )
+    phone_number = "+" + phone_number
     if await check_phone_number(phone_number):
         await state.update_data(phone_number=phone_number)
         await message.answer(

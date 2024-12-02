@@ -7,7 +7,7 @@ from handlers.supports.answer import (
     KITCHEN_PHOTO_CAPTURE,
     NOT_ALLOWED_FUNC,
 )
-from services.kitchen_service import get_people_on_kitchen
+from services.camera_events_service import get_last_camera_event
 from handlers.supports.keyboards import get_kitchen_keyboard
 
 router = Router()
@@ -17,7 +17,7 @@ async def send_kitchen_info(
     chat_id: str, state: FSMContext, user_id: str
 ) -> None:
     bot = Bot(token=BOT_TOKEN)
-    kitchen_info = await get_people_on_kitchen(22726, 255, user_id)
+    kitchen_info = await get_last_camera_event(22726, 255, user_id)
     message = await bot.send_photo(
         chat_id=chat_id,
         photo=FSInputFile(kitchen_info[1]),

@@ -8,6 +8,7 @@ SELECT_PERIOD_MESS = "Выберите период:"
 INPUT_PERIOD_MESS = (
     "Введите период в формате: год-месяц-день год-месяц-день"
 )
+NO_CAMERA_EVENTS = "Невозможно построить гистограмму, так как за выбранный период камера не зафиксировала появление людей."
 MENU_MESSAGE = "Выберите одну из команд."
 BOOKING_STATUS_TEMPLATE = (
     """{status} [{people_count}] - {location} {start_time} {end_time}"""

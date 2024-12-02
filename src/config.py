@@ -24,3 +24,8 @@ AUTH_DB_USER = os.getenv("AUTH_DB_USER")
 AUTH_DB_PASSWORD = os.getenv("AUTH_DB_PASSWORD")
 AUTH_DB_PORT = os.getenv("AUTH_DB_PORT")
 AUTH_DB_DOMAIN = os.getenv("AUTH_DB_DOMAIN")
+# Camera envs
+KITCHEN_ID = os.getenv("KITCHEN_ID")
+BLA_BLA = os.getenv("BLA_BLA")
+TEROCHNAYA = os.getenv("TEROCHNAYA")
+SCENARIO_ID = os.getenv("SCENARIO_ID")

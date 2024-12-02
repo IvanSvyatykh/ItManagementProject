@@ -3,5 +3,6 @@
 *.pyc
 *.log
 *.ovpn
+secrets/
 *.jpg
 *.png

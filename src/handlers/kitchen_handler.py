@@ -8,7 +8,7 @@ from handlers.supports.answer import (
     NOT_ALLOWED_FUNC,
 )
 from services.kitchen_service import get_people_on_kitchen
-from handlers.supports.keybords import get_kitchen_keyboard
+from handlers.supports.keyboards import get_kitchen_keyboard
 
 router = Router()
 

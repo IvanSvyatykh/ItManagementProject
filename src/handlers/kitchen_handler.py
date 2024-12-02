@@ -14,9 +14,7 @@ from handlers.utils.keyboards import get_kitchen_keyboard
 router = Router()
 
 
-async def send_kitchen_info(
-    chat_id: str, state: FSMContext, user_id: str
-) -> None:
+async def send_kitchen_info(chat_id: str, state: FSMContext) -> None:
     bot = Bot(token=BOT_TOKEN)
     kitchen_info = await get_last_camera_event(KITCHEN_ID, SCENARIO_ID)
     message = await bot.send_photo(
@@ -42,5 +40,4 @@ async def get_kitchen_info(
         await send_kitchen_info(
             callback_query.message.chat.id,
             state,
-            callback_query.message.from_user.id,
         )

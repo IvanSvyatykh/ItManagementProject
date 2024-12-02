@@ -15,9 +15,7 @@ router = Router()
 
 
 @router.callback_query(lambda c: c.data == "statistics")
-async def kitchen_statistics(
-    callback_query: CallbackQuery, state: FSMContext
-):
+async def kitchen_statistics(callback_query: CallbackQuery):
     path: Path | None = await get_people_disribution_on_kitchen_by_day(
         KITCHEN_ID,
         SCENARIO_ID,

@@ -1,7 +1,10 @@
 from datetime import datetime, time, timedelta
 from aiogram import Bot, types, Router, F
 from config import BOT_TOKEN
-from aiogram.types import FSInputFile, InputMediaPhoto, CallbackQuery
+from aiogram.types import (
+    FSInputFile,
+    CallbackQuery,
+)
 from aiogram.fsm.context import FSMContext
 from aiogram.filters import Command
 from handlers.supports.state_machine import UserState
@@ -12,6 +15,7 @@ from handlers.supports.keyboards import (
     get_pagination_keyboard,
 )
 from handlers.supports.answer import (
+    NOT_ALLOWED_FUNC,
     SELECT_PERIOD_MESS,
     INPUT_PERIOD_MESS,
     BOOKING_STATUS_TEMPLATE,
@@ -34,12 +38,19 @@ ROOMS = [
 ]
 
 
-@router.message(Command("booking"))
+@router.callback_query(lambda c: c.data == "booking")
 async def booking_handler(
     callback_query: CallbackQuery, state: FSMContext
 ):
-    await state.update_data(current_room_index=0)
-    await update_booking_message(callback_query, state)
+    user_data = await state.get_data()
+    if (
+        "phone_number" not in user_data
+        or user_data["phone_number"] is None
+    ):
+        await callback_query.message.answer(text=NOT_ALLOWED_FUNC)
+    else:
+        await state.update_data(current_room_index=0)
+        await update_booking_message(callback_query, state)
 
 
 @router.callback_query(lambda c: c.data == "update_booking")

@@ -181,7 +181,7 @@ async def get_next_event(location: str) -> list[dict]:
 
     for event in events_today:
         if location.lower() in (
-            await normalize_location(event.get("location", "")).lower()
+            (await normalize_location(event.get("location", ""))).lower()
         ):
             start_time = (
                 datetime.fromisoformat(event["start"]["dateTime"])

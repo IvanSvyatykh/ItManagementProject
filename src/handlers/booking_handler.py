@@ -1,6 +1,6 @@
 from datetime import datetime, time, timedelta
 from aiogram import Bot, types, Router, F
-from config import BOT_TOKEN
+from config import BOT_TOKEN, SCENARIO_ID
 from aiogram.types import (
     FSInputFile,
     CallbackQuery,
@@ -20,7 +20,6 @@ from handlers.supports.answer import (
     BOOKING_STATUS_TEMPLATE,
 )
 from services.booking_service import (
-    get_random_people_count,
     get_booking_status,
     get_events,
     split_message_into_pages,
@@ -61,10 +60,8 @@ async def update_booking_message(
     room_index = data.get("current_room_index", 0)
     room_name = ROOMS[room_index]
 
-    current_time = datetime.now()
-
     # Получаем статус комнаты
-    room_status = await get_booking_status(room_name, current_time)
+    room_status = await get_booking_status(room_name, SCENARIO_ID)
     booking_status = room_status["status"]
     people_count = room_status["people_count"]
     next_booking_times = room_status["next_booking_time"]
@@ -85,7 +82,7 @@ async def update_booking_message(
 
     await bot.send_photo(
         chat_id=callback_query.from_user.id,
-        photo=FSInputFile("src/files/booking/Google_Calendar_icon.png"),
+        photo=FSInputFile(room_status["photo_path"]),
         caption=message_text,
         reply_markup=await get_room_navigation_keyboard(),
     )

@@ -14,7 +14,7 @@ from typing import Tuple
 
 
 async def get_last_camera_event(
-    camera_id: int, scenario_id: int, user_id: int
+    camera_id: int, scenario_id: int
 ) -> Tuple[int, Path]:
     config = PostgresConfig(
         user_name=POSTGRES_USER,
@@ -32,16 +32,18 @@ async def get_last_camera_event(
                 camera_id, scenario_id
             )
         )
-    photo_path = await __get_photo(kitchen_event, user_id)
+    photo_path = await __get_photo(kitchen_event)
     return (len(kitchen_event.boxes_cords["bboxes"]), photo_path)
 
 
-async def __get_photo(kitchen_event: CameraEventDto, user_id: int) -> Path:
+async def __get_photo(kitchen_event: CameraEventDto) -> Path:
     img_data = requests.get(
         f"https://api.platform-vision.is74.ru/analytics/images/draw/{kitchen_event.scenario_id}/{str(kitchen_event.timestamp).replace(' ', '%20')}/{kitchen_event.camera_id}/{kitchen_event.image_key}.jpg"
     ).content
 
-    photo_path = Path(f"src/files/kitchen/{user_id}.jpg")
+    photo_path = Path(
+        f"src/files/photos/{kitchen_event.camera_id}_{kitchen_event.timestamp}.jpg"
+    )
     with open(photo_path, "wb") as handler:
         handler.write(img_data)
     return photo_path

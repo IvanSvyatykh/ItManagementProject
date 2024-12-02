@@ -7,6 +7,8 @@ import pytz
 import random
 
 from config import SERVICE_ACCOUNT_FILE, SCOPES, CALENDAR_ID
+from services.camera_events_service import get_last_camera_event
+from config import SCENARIO_ID, BLA_BLA, TEROCHNAYA
 
 LOCATION_MAP = {
     # Бла-Бла
@@ -50,6 +52,15 @@ LOCATION_MAP = {
     "безуказанияместа": "Без указания места",
 }
 
+ROOMS_ID = {
+    "Тет-а-тет": 1,
+    "Бла-Бла": BLA_BLA,
+    "Зона отдыха 7 этаж": 3,
+    "7 этаж у проектора": 4,
+    "Спортивная": 5,
+    "Терочная": TEROCHNAYA,
+}
+
 MESSAGE_LIMIT = 1000
 TIMEZONE = pytz.timezone("Asia/Yekaterinburg")
 
@@ -78,24 +89,21 @@ CREDS = ServiceAccountCreds(
 )
 
 
-async def get_random_people_count() -> int:
-    return random.randint(0, 4)
-
-
-async def get_booking_status(
-    room_name: str, current_time: datetime
-) -> dict:
+async def get_booking_status(room_name: str, scenario_id: int) -> dict:
     """
     Возвращает статус бронирования для указанной комнаты.
     """
-    people_count = await get_random_people_count()
-    status = "🟢" if people_count == 0 else "🔴"
+    room_info = await get_last_camera_event(
+        camera_id=ROOMS_ID[room_name], scenario_id=scenario_id
+    )
+    status = "🟢" if room_info[0] == 0 else "🔴"
     next_events = await get_next_event(room_name)
 
     return {
         "status": status,
-        "people_count": people_count,
+        "people_count": room_info[0],
         "next_booking_time": next_events,
+        "photo_path": room_info[1],
     }
 
 

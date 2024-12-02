@@ -17,10 +17,16 @@ router = Router()
 async def send_kitchen_info(chat_id: str, state: FSMContext) -> None:
     bot = Bot(token=BOT_TOKEN)
     kitchen_info = await get_last_camera_event(KITCHEN_ID, SCENARIO_ID)
+    if kitchen_info["meta"] is None:
+        caption = KITCHEN_PHOTO_CAPTURE.format(kitchen_info["people_nums"])
+    else:
+        caption = KITCHEN_PHOTO_CAPTURE.format(
+            kitchen_info["people_nums"], kitchen_info["meta"]
+        )
     message = await bot.send_photo(
         chat_id=chat_id,
-        photo=FSInputFile(kitchen_info[1]),
-        caption=KITCHEN_PHOTO_CAPTURE.format(kitchen_info[0]),
+        photo=FSInputFile(kitchen_info["path_to_photo"]),
+        caption=caption,
         reply_markup=await get_kitchen_keyboard(),
     )
     await state.update_data(message_id=message.message_id)

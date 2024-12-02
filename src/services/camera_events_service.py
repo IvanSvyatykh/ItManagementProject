@@ -1,3 +1,4 @@
+from datetime import datetime, timedelta
 from pathlib import Path
 
 import requests
@@ -10,12 +11,9 @@ from config import (
     POSTGRES_DB_NAME,
     POSTGRES_PORT,
 )
-from typing import Tuple
 
 
-async def get_last_camera_event(
-    camera_id: int, scenario_id: int
-) -> Tuple[int, Path]:
+async def get_last_camera_event(camera_id: int, scenario_id: int) -> dict:
     config = PostgresConfig(
         user_name=POSTGRES_USER,
         password=POSTGRES_PASSWORD,
@@ -32,8 +30,20 @@ async def get_last_camera_event(
                 camera_id, scenario_id
             )
         )
+    meta = (
+        "Внимание, последняя фотография была сделана более 2 минут назад, данные могу быть не актуальными."
+        if (
+            datetime.now() - (kitchen_event.timestamp + timedelta(hours=5))
+        ).total_seconds()
+        > 120
+        else None
+    )
     photo_path = await __get_photo(kitchen_event)
-    return (len(kitchen_event.boxes_cords["bboxes"]), photo_path)
+    return {
+        "people_nums": len(kitchen_event.boxes_cords["bboxes"]),
+        "path_to_photo": photo_path,
+        "meta": meta,
+    }
 
 
 async def __get_photo(kitchen_event: CameraEventDto) -> Path:

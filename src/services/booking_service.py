@@ -101,9 +101,10 @@ async def get_booking_status(room_name: str, scenario_id: int) -> dict:
 
     return {
         "status": status,
-        "people_count": room_info[0],
+        "people_count": room_info["people_nums"],
         "next_booking_time": next_events,
-        "photo_path": room_info[1],
+        "photo_path": room_info["path_to_photo"],
+        "meta": room_info["meta"],
     }
 
 

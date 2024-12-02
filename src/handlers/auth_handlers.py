@@ -23,6 +23,7 @@ async def start_dialog(message: types.Message, state: FSMContext):
     await message.answer(
         text=GREETING_MESS, reply_markup=await get_phone_number_keyboard()
     )
+
     await state.set_state(UserState.phone_number)
 
 

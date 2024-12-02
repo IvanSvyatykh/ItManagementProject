@@ -1,12 +1,7 @@
-<<<<<<< HEAD
 from datetime import datetime, time, timedelta
 from aiogram import Bot, types, Router, F
 from config import BOT_TOKEN
 from aiogram.types import FSInputFile, InputMediaPhoto, CallbackQuery
-=======
-from aiogram import Router
-from aiogram.types import CallbackQuery, InputMediaPhoto
->>>>>>> main
 from aiogram.fsm.context import FSMContext
 from aiogram.filters import Command
 from handlers.supports.state_machine import UserState
@@ -40,13 +35,17 @@ ROOMS = [
 
 
 @router.message(Command("booking"))
-async def booking_handler(callback_query: CallbackQuery, state: FSMContext):
+async def booking_handler(
+    callback_query: CallbackQuery, state: FSMContext
+):
     await state.update_data(current_room_index=0)
     await update_booking_message(callback_query, state)
 
 
 @router.callback_query(lambda c: c.data == "update_booking")
-async def update_booking_message(callback_query: CallbackQuery, state: FSMContext):
+async def update_booking_message(
+    callback_query: CallbackQuery, state: FSMContext
+):
     bot = Bot(token=BOT_TOKEN)
     data = await state.get_data()
     room_index = data.get("current_room_index", 0)
@@ -56,15 +55,16 @@ async def update_booking_message(callback_query: CallbackQuery, state: FSMContex
 
     # Получаем статус комнаты
     room_status = await get_booking_status(room_name, current_time)
-    booking_status = room_status['status']
-    people_count = room_status['people_count']
-    next_booking_times = room_status['next_booking_time']
+    booking_status = room_status["status"]
+    people_count = room_status["people_count"]
+    next_booking_times = room_status["next_booking_time"]
 
     if next_booking_times:
         first_event = next_booking_times[0]
         events_text = f"{room_name} {first_event['start_time']} - {first_event['end_time']}\n"
         other_events = [
-            f"{' ' * 30}{event['start_time']} - {event['end_time']}" for event in next_booking_times[1:]
+            f"{' ' * 30}{event['start_time']} - {event['end_time']}"
+            for event in next_booking_times[1:]
         ]
         events_text += "\n".join(other_events)
     else:
@@ -82,7 +82,9 @@ async def update_booking_message(callback_query: CallbackQuery, state: FSMContex
 
 
 @router.callback_query(lambda c: c.data == "to_book")
-async def to_book_handler(callback_query: CallbackQuery, state: FSMContext):
+async def to_book_handler(
+    callback_query: CallbackQuery, state: FSMContext
+):
     await callback_query.message.delete()
 
     google_calendar_url = "https://calendar.google.com/"
@@ -91,7 +93,7 @@ async def to_book_handler(callback_query: CallbackQuery, state: FSMContext):
     await callback_query.message.answer(
         text=message_text,
         reply_markup=await get_main_keyboard(),
-        parse_mode="Markdown"
+        parse_mode="Markdown",
     )
 
 
@@ -111,14 +113,18 @@ async def navigate_rooms(callback_query: CallbackQuery, state: FSMContext):
 
 
 @router.callback_query(lambda c: c.data == "booking_list")
-async def booking_list_handler(callback_query: CallbackQuery, state: FSMContext):
+async def booking_list_handler(
+    callback_query: CallbackQuery, state: FSMContext
+):
     await callback_query.message.delete()
     await show_period_selection(callback_query)
 
 
 async def show_period_selection(callback_query: CallbackQuery):
     message_text = "Выберите период:"
-    await callback_query.message.answer(message_text, reply_markup=await get_period_selection_keyboard())
+    await callback_query.message.answer(
+        message_text, reply_markup=await get_period_selection_keyboard()
+    )
 
 
 @router.callback_query(lambda c: c.data == "period_today")
@@ -148,9 +154,15 @@ async def period_this_week_handler(callback_query: CallbackQuery):
 
 
 @router.callback_query(lambda c: c.data == "period_input_period")
-async def booking_choose_period_handler(callback_query: CallbackQuery, state: FSMContext):
-    message_text = "Введите период в формате: год-месяц-день год-месяц-день"
-    await callback_query.message.edit_text(message_text, reply_markup=await get_main_keyboard())
+async def booking_choose_period_handler(
+    callback_query: CallbackQuery, state: FSMContext
+):
+    message_text = (
+        "Введите период в формате: год-месяц-день год-месяц-день"
+    )
+    await callback_query.message.edit_text(
+        message_text, reply_markup=await get_main_keyboard()
+    )
     await state.set_state(UserState.waiting_for_period)
 
 
@@ -181,19 +193,32 @@ async def handle_period_input(message: types.Message, state: FSMContext):
                 await message.answer(pages[0])
             else:
                 current_page = 0
-                await state.update_data(pages=pages, current_page=current_page)
+                await state.update_data(
+                    pages=pages, current_page=current_page
+                )
                 await message.answer(
                     pages[current_page],
-                    reply_markup=get_pagination_keyboard(current_page, len(pages))
+                    reply_markup=get_pagination_keyboard(
+                        current_page, len(pages)
+                    ),
                 )
     except ValueError:
-        await message.answer("Неверно введен период! Введите период в формате: год-месяц-день год-месяц-день")
+        await message.answer(
+            "Неверно введен период! Введите период в формате: год-месяц-день год-месяц-день"
+        )
 
 
-async def send_events_message(callback_query: CallbackQuery, start_date: datetime, end_date: datetime, events: list):
+async def send_events_message(
+    callback_query: CallbackQuery,
+    start_date: datetime,
+    end_date: datetime,
+    events: list,
+):
     if not events:
-        message_text = (f"Список бронирования {start_date.strftime('%Y-%m-%d')} - {end_date.strftime('%Y-%m-%d')}:\n"
-                        f" Нет событий.")
+        message_text = (
+            f"Список бронирования {start_date.strftime('%Y-%m-%d')} - {end_date.strftime('%Y-%m-%d')}:\n"
+            f" Нет событий."
+        )
     else:
         message_text = f"Список бронирования {start_date.strftime('%Y-%m-%d')} - {end_date.strftime('%Y-%m-%d')}:\n"
 
@@ -205,11 +230,15 @@ async def send_events_message(callback_query: CallbackQuery, start_date: datetim
         ]
         message_text += "\n".join(event_strings)
 
-    await callback_query.message.edit_text(message_text, reply_markup=await get_main_keyboard())
+    await callback_query.message.edit_text(
+        message_text, reply_markup=await get_main_keyboard()
+    )
 
 
 @router.callback_query(lambda c: c.data.startswith("page_"))
-async def handle_pagination(callback_query: CallbackQuery, state: FSMContext):
+async def handle_pagination(
+    callback_query: CallbackQuery, state: FSMContext
+):
     data = await state.get_data()
     pages = data.get("pages", [])
     current_page = int(callback_query.data.split("_")[1])
@@ -218,5 +247,5 @@ async def handle_pagination(callback_query: CallbackQuery, state: FSMContext):
 
     await callback_query.message.edit_text(
         pages[current_page],
-        reply_markup=get_pagination_keyboard(current_page, len(pages))
+        reply_markup=get_pagination_keyboard(current_page, len(pages)),
     )

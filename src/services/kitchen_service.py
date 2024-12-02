@@ -92,7 +92,7 @@ async def get_people_disribution_on_kitchen_by_week(
 
     if len(x) == 0 or len(y) == 0:
         return None
-    path = Path(f"src/files/kitchen_photo/{user_id}_stat_week.png")
+    path = Path(f"src/files/stat/{user_id}_stat_week.png")
 
     await create_hist_of_week_disribution(
         y_data=y, x_data=x, path_to_png=path

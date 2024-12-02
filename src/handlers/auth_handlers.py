@@ -8,8 +8,8 @@ from handlers.supports.answer import (
     PHONE_NUMBER_EXISTS,
     PHONE_NUMBER_NOT_EXISTS,
 )
-from handlers.supports.state_machine import UserState
-from handlers.supports.keyboards import (
+from handlers.utils.state_machine import UserState
+from handlers.utils.keyboards import (
     get_phone_number_keyboard,
     get_start_keyboard,
 )

@@ -6,14 +6,14 @@ from aiogram.types import (
     CallbackQuery,
 )
 from aiogram.fsm.context import FSMContext
-from handlers.supports.state_machine import UserState
-from handlers.supports.keyboards import (
+from handlers.utils.state_machine import UserState
+from handlers.utils.keyboards import (
     get_main_keyboard,
     get_period_selection_keyboard,
     get_room_navigation_keyboard,
     get_pagination_keyboard,
 )
-from handlers.supports.answer import (
+from handlers.utils.answer import (
     NOT_ALLOWED_FUNC,
     SELECT_PERIOD_MESS,
     INPUT_PERIOD_MESS,

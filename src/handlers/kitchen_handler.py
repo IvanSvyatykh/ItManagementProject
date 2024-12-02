@@ -3,13 +3,13 @@ from aiogram.fsm.context import FSMContext
 from aiogram.types import FSInputFile
 from aiogram.types import CallbackQuery
 from config import BOT_TOKEN
-from handlers.supports.answer import (
+from handlers.utils.answer import (
     KITCHEN_PHOTO_CAPTURE,
     NOT_ALLOWED_FUNC,
 )
 from config import KITCHEN_ID, SCENARIO_ID
 from services.camera_events_service import get_last_camera_event
-from handlers.supports.keyboards import get_kitchen_keyboard
+from handlers.utils.keyboards import get_kitchen_keyboard
 
 router = Router()
 

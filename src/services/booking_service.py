@@ -8,7 +8,7 @@ import random
 
 from config import SERVICE_ACCOUNT_FILE, SCOPES, CALENDAR_ID
 from services.camera_events_service import get_last_camera_event
-from config import SCENARIO_ID, BLA_BLA, TEROCHNAYA
+from config import CHILL_ZONE_SEVEN, BLA_BLA, TEROCHNAYA
 
 LOCATION_MAP = {
     # Бла-Бла
@@ -55,8 +55,8 @@ LOCATION_MAP = {
 ROOMS_ID = {
     "Тет-а-тет": BLA_BLA,
     "Бла-Бла": BLA_BLA,
-    "Зона отдыха 7 этаж": BLA_BLA,
-    "7 этаж у проектора": BLA_BLA,
+    "Зона отдыха 7 этаж": CHILL_ZONE_SEVEN,
+    "7 этаж у проектора": CHILL_ZONE_SEVEN,
     "Спортивная": BLA_BLA,
     "Терочная": TEROCHNAYA,
 }

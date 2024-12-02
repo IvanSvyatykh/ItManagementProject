@@ -13,9 +13,3 @@ class MonitoringEvents(Base):
     scenario_id = Column(Integer)
     image_key = Column(String)
     add_data = Column(JSON)
-
-class Users(Base):
-    __tablename__ = "users"
-    __table_args__ = {"schema": "public"}
-    phone_number = Column(String, primary_key=True)
-    is_active = Column(BOOLEAN)

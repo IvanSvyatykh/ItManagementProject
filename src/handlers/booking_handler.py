@@ -1,7 +1,12 @@
+<<<<<<< HEAD
 from datetime import datetime, time, timedelta
 from aiogram import Bot, types, Router, F
 from config import BOT_TOKEN
 from aiogram.types import FSInputFile, InputMediaPhoto, CallbackQuery
+=======
+from aiogram import Router
+from aiogram.types import CallbackQuery, InputMediaPhoto
+>>>>>>> main
 from aiogram.fsm.context import FSMContext
 from aiogram.filters import Command
 from handlers.supports.state_machine import UserState

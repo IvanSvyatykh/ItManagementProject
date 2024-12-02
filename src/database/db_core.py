@@ -4,7 +4,7 @@ from contextlib import contextmanager
 
 from database.repository import MonitoringEventsRepository
 
-from database.auth_repository import AuthRepository
+from database.repository import AuthRepository
 
 
 class PostgresConfig:
@@ -33,7 +33,30 @@ class PostgresConfig:
         self.__connection.close()
 
 
-class UnitOfWork:
+class AuthDBUnitOfWork:
+    def __init__(self, db_config: PostgresConfig):
+        self.__session_factory = sessionmaker(
+            autoflush=True, bind=db_config.engine
+        )
+
+    @contextmanager
+    def start(self) -> Session:
+        self._session = self.__session_factory()
+        try:
+            yield self
+            self._session.commit()
+        except:
+            self._session.rollback()
+            raise
+        finally:
+            self._session.close()
+
+    @property
+    def auth_repository(self) -> AuthRepository:
+        return AuthRepository(self._session)
+
+
+class IsDBUnitOfWork:
     def __init__(self, db_config: PostgresConfig):
         self.__session_factory = sessionmaker(
             autoflush=True, bind=db_config.engine
@@ -54,8 +77,3 @@ class UnitOfWork:
     @property
     def monitoring_events_repository(self) -> MonitoringEventsRepository:
         return MonitoringEventsRepository(self._session)
-
-    @property
-    def auth_repository(self) -> AuthRepository:
-        return AuthRepository(self._session)
-

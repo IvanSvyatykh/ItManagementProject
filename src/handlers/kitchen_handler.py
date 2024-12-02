@@ -1,7 +1,7 @@
-from aiogram import Bot, types, Router
-from aiogram.filters import Command
+from aiogram import Bot, Router
 from aiogram.fsm.context import FSMContext
 from aiogram.types import FSInputFile
+from aiogram.types import CallbackQuery
 from config import BOT_TOKEN
 from handlers.supports.answer import (
     KITCHEN_PHOTO_CAPTURE,
@@ -27,11 +27,9 @@ async def send_kitchen_info(
     await state.update_data(message_id=message.message_id)
 
 
-@router.callback_query(
-    lambda c: c.data == "kitchen" or c.data == "update_kitchen_info"
-)
+@router.callback_query(lambda c: c.data == "kitchen_info")
 async def get_kitchen_info(
-    callback_query: types.CallbackQuery, state: FSMContext
+    callback_query: CallbackQuery, state: FSMContext
 ):
     user_data = await state.get_data()
     if (

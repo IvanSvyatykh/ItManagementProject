@@ -4,3 +4,5 @@
 *.log
 *.ovpn
 secrets/
+*.jpg
+*.png

@@ -45,7 +45,7 @@ class MonitoringEventsRepository:
             return None
         return CameraEventDto(latest_event)
 
-    async def get_day_camera_event(
+    async def get_day_camera_events(
         self, camera_id: int, scenario_id: int, target_date: datetime
     ) -> List[CameraEventDto]:
         event_by_date: List[MonitoringEvents] = (

@@ -93,9 +93,7 @@ async def get_booking_status(room_name: str, scenario_id: int) -> dict:
     """
     Возвращает статус бронирования для указанной комнаты.
     """
-    room_info = await get_last_camera_event(
-        camera_id=ROOMS_ID[room_name], scenario_id=scenario_id
-    )
+    room_info = await get_last_camera_event(camera_id=ROOMS_ID[room_name])
     status = "🟢" if room_info["people_nums"] == 0 else "🔴"
     next_events = await get_next_event(room_name)
 

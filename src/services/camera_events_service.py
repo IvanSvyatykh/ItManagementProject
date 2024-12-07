@@ -1,5 +1,6 @@
 from datetime import datetime, timedelta
 from pathlib import Path
+import pandas as pd
 
 import requests
 from database.dto import CameraEventDto
@@ -13,7 +14,17 @@ from config import (
 )
 
 
-async def get_last_camera_event(camera_id: int, scenario_id: int) -> dict:
+async def get_last_camera_event(camera_id: int) -> dict:
+    photo_path = Path(f"src/files/photos/{camera_id}.jpg")
+    meta = pd.read_csv(f"src/files/photos/{camera_id}.csv")
+    return {
+        "people_nums": meta["people_nums"][0],
+        "path_to_photo": photo_path,
+        "meta": meta["meta"][0],
+    }
+
+
+def update_camera_photo(camera_id: int, scenario_id: int) -> dict:
     config = PostgresConfig(
         user_name=POSTGRES_USER,
         password=POSTGRES_PASSWORD,
@@ -26,7 +37,7 @@ async def get_last_camera_event(camera_id: int, scenario_id: int) -> dict:
     uow = IsDBUnitOfWork(config)
     with uow.start() as session:
         kitchen_event: CameraEventDto = (
-            await session.monitoring_events_repository.get_last_camera_event(
+            session.monitoring_events_repository.get_last_camera_event(
                 camera_id, scenario_id
             )
         )
@@ -38,7 +49,13 @@ async def get_last_camera_event(camera_id: int, scenario_id: int) -> dict:
         > 120
         else None
     )
-    photo_path = await __get_photo(kitchen_event)
+    photo_path = __get_photo(kitchen_event)
+    pd.DataFrame.from_dict(
+        {
+            "meta": [meta],
+            "people_nums": [len(kitchen_event.boxes_cords["bboxes"])],
+        }
+    ).to_csv(f"src/files/photos/{kitchen_event.camera_id}.csv")
     return {
         "people_nums": len(kitchen_event.boxes_cords["bboxes"]),
         "path_to_photo": photo_path,
@@ -46,14 +63,12 @@ async def get_last_camera_event(camera_id: int, scenario_id: int) -> dict:
     }
 
 
-async def __get_photo(kitchen_event: CameraEventDto) -> Path:
+def __get_photo(kitchen_event: CameraEventDto) -> Path:
     img_data = requests.get(
         f"https://api.platform-vision.is74.ru/analytics/images/draw/{kitchen_event.scenario_id}/{str(kitchen_event.timestamp).replace(' ', '%20')}/{kitchen_event.camera_id}/{kitchen_event.image_key}.jpg"
     ).content
 
-    photo_path = Path(
-        f"src/files/photos/{kitchen_event.camera_id}_{kitchen_event.timestamp}.jpg"
-    )
+    photo_path = Path(f"src/files/photos/{kitchen_event.camera_id}.jpg")
     with open(photo_path, "wb") as handler:
         handler.write(img_data)
     return photo_path

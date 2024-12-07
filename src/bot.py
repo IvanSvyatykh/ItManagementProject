@@ -9,12 +9,49 @@ from aiogram.webhook.aiohttp_server import (
     SimpleRequestHandler,
     setup_application,
 )
+from config import (
+    KITCHEN_ID,
+    SCENARIO_ID,
+    BLA_BLA,
+    TEROCHNAYA,
+    CHILL_ZONE_SEVEN,
+)
+from services.camera_events_service import update_camera_photo
+from apscheduler.schedulers.background import BackgroundScheduler
 from handlers import (
     auth_handlers,
     kitchen_handler,
     statistic_handler,
     booking_handler,
 )
+
+
+scheduler = BackgroundScheduler()
+scheduler.add_job(
+    update_camera_photo,
+    "interval",
+    args=[KITCHEN_ID, SCENARIO_ID],
+    seconds=5,
+)
+scheduler.add_job(
+    update_camera_photo,
+    "interval",
+    args=[BLA_BLA, SCENARIO_ID],
+    seconds=5,
+)
+scheduler.add_job(
+    update_camera_photo,
+    "interval",
+    args=[TEROCHNAYA, SCENARIO_ID],
+    seconds=5,
+)
+scheduler.add_job(
+    update_camera_photo,
+    "interval",
+    args=[CHILL_ZONE_SEVEN, SCENARIO_ID],
+    seconds=5,
+)
+scheduler.start()
 
 
 async def on_startup(bot: Bot) -> None:

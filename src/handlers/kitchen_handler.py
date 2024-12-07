@@ -16,7 +16,7 @@ router = Router()
 
 async def send_kitchen_info(chat_id: str, state: FSMContext) -> None:
     bot = Bot(token=BOT_TOKEN)
-    kitchen_info = await get_last_camera_event(KITCHEN_ID, SCENARIO_ID)
+    kitchen_info = await get_last_camera_event(KITCHEN_ID)
     if kitchen_info["meta"] is None:
         caption = KITCHEN_PHOTO_CAPTURE.format(kitchen_info["people_nums"])
     else:

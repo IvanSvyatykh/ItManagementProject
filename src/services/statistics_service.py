@@ -25,7 +25,7 @@ async def get_people_disribution_on_kitchen_by_day(
     config.create_engine()
     uow = IsDBUnitOfWork(config)
     with uow.start() as session:
-        events = await session.monitoring_events_repository.get_day_camera_event(
+        events = await session.monitoring_events_repository.get_day_camera_events(
             camera_id, scenario_id, date.date()
         )
     y = []

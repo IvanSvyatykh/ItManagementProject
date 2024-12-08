@@ -1,11 +1,8 @@
 import json
 from datetime import datetime, time
-
 from aiogoogle import Aiogoogle
 from aiogoogle.auth.creds import ServiceAccountCreds
 import pytz
-import random
-
 from config import SERVICE_ACCOUNT_FILE, SCOPES, CALENDAR_ID
 from services.camera_events_service import get_last_camera_event
 from config import CHILL_ZONE_SEVEN, BLA_BLA, TEROCHNAYA
@@ -33,21 +30,21 @@ LOCATION_MAP = {
     "7этажзонаотдыха": "Зона отдыха 7 этаж",
     "7ойэтажзонаотдыха": "Зона отдыха 7 этаж",
     # 7 этаж у проектора
-    "7проектор": "7 этаж у проектора",
-    "7упроектора": "7 этаж у проектора",
-    "7этупроектор": "7 этаж у проектора",
-    "7этажупроектор": "7 этаж у проектора",
-    "7упроектор": "7 этаж у проектора",
-    "7этажупроектора": "7 этаж у проектора",
-    "7ойэтажупроектора": "7 этаж у проектора",
-    "7этупроектора": "7 этаж у проектора",
-    "7ойэтупроектора": "7 этаж у проектора",
-    "7этпроектор": "7 этаж у проектора",
-    "7ойэтпроектор": "7 этаж у проектора",
+    "7проектор": "Зона отдыха 7 этаж",
+    "7упроектора": "Зона отдыха 7 этаж",
+    "7этупроектор": "Зона отдыха 7 этаж",
+    "7этажупроектор": "Зона отдыха 7 этаж",
+    "7упроектор": "Зона отдыха 7 этаж",
+    "7этажупроектора": "Зона отдыха 7 этаж",
+    "7ойэтажупроектора": "Зона отдыха 7 этаж",
+    "7этупроектора": "Зона отдыха 7 этаж",
+    "7ойэтупроектора": "Зона отдыха 7 этаж",
+    "7этпроектор": "Зона отдыха 7 этаж",
+    "7ойэтпроектор": "Зона отдыха 7 этаж",
     # Спортивная
-    "спортивная": "Спортивная",
-    "спорткомната": "Спортивная",
-    "спортивнаякомната": "Спортивная",
+    "спортивная": "Бла-Бла",
+    "спорткомната": "Бла-Бла",
+    "спортивнаякомната": "Бла-Бла",
     # Без указания места
     "безуказанияместа": "Без указания места",
 }
@@ -64,11 +61,9 @@ ROOMS_ID = {
 MESSAGE_LIMIT = 1000
 TIMEZONE = pytz.timezone("Asia/Yekaterinburg")
 
-# Загружаем данные из JSON файла
 with open(SERVICE_ACCOUNT_FILE, "r") as f:
     service_account_info = json.load(f)
 
-# Создаем объект ServiceAccountCreds
 CREDS = ServiceAccountCreds(
     type=service_account_info.get("type"),
     project_id=service_account_info.get("project_id"),
@@ -90,10 +85,9 @@ CREDS = ServiceAccountCreds(
 
 
 async def get_booking_status(room_name: str, scenario_id: int) -> dict:
-    """
-    Возвращает статус бронирования для указанной комнаты.
-    """
-    room_info = await get_last_camera_event(camera_id=ROOMS_ID[room_name])
+    room_info = await get_last_camera_event(
+        camera_id=ROOMS_ID[room_name]
+    )
     status = "🟢" if room_info["people_nums"] == 0 else "🔴"
     next_events = await get_next_event(room_name)
 
@@ -126,9 +120,6 @@ def split_message_into_pages(
 
 
 async def normalize_location(location: str) -> str:
-    """
-    Приводит строку к нормализованному названию локации.
-    """
     location = "".join(
         filter(str.isalnum, location.lower().replace(" ", ""))
     )
@@ -137,9 +128,6 @@ async def normalize_location(location: str) -> str:
 
 
 async def format_event(event: dict) -> str:
-    """
-    Форматирует событие в читаемый вид.
-    """
     start = datetime.fromisoformat(event["start"]["dateTime"]).astimezone(
         TIMEZONE
     )
@@ -155,9 +143,6 @@ async def format_event(event: dict) -> str:
 async def get_events(
     start_date: datetime, end_date: datetime
 ) -> list[dict]:
-    """
-    Получает события из Google Calendar в указанный период.
-    """
     async with Aiogoogle(service_account_creds=CREDS) as aiogoogle:
         calendar = await aiogoogle.discover("calendar", "v3")
         time_min = start_date.astimezone(TIMEZONE).isoformat()
@@ -176,9 +161,6 @@ async def get_events(
 
 
 async def get_next_event(location: str) -> list[dict]:
-    """
-    Возвращает список следующих событий на сегодня для указанной локации.
-    """
     now = datetime.now(TIMEZONE)
     start_of_day = datetime.combine(now.date(), time.min, tzinfo=TIMEZONE)
     end_of_day = datetime.combine(now.date(), time.max, tzinfo=TIMEZONE)
@@ -209,6 +191,5 @@ async def get_next_event(location: str) -> list[dict]:
                 }
             )
 
-    # Сортируем события по времени начала
     matched_events.sort(key=lambda x: x["start_time"])
     return matched_events

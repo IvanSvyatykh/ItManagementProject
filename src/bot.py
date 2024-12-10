@@ -37,7 +37,7 @@ scheduler = BackgroundScheduler()
 scheduler.add_job(
     update_photo,
     "interval",
-    seconds=10,
+    seconds=15,
 )
 scheduler.start()
 

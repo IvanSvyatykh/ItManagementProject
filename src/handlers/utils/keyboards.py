@@ -61,7 +61,7 @@ async def get_room_navigation_keyboard() -> InlineKeyboardMarkup:
     keyboard_builder = InlineKeyboardBuilder()
 
     keyboard_builder.button(
-        text="Обновить", callback_data="update_booking"
+        text="Обновить", callback_data="update_booking_button"
     )
     keyboard_builder.button(text="←", callback_data="navigate_left")
     keyboard_builder.button(text="→", callback_data="navigate_right")

@@ -26,30 +26,18 @@ from handlers import (
 )
 
 
+def update_photo():
+    update_camera_photo(CHILL_ZONE_SEVEN, SCENARIO_ID)
+    update_camera_photo(TEROCHNAYA, SCENARIO_ID)
+    update_camera_photo(BLA_BLA, SCENARIO_ID)
+    update_camera_photo(KITCHEN_ID, SCENARIO_ID)
+
+
 scheduler = BackgroundScheduler()
 scheduler.add_job(
-    update_camera_photo,
+    update_photo,
     "interval",
-    args=[KITCHEN_ID, SCENARIO_ID],
-    seconds=5,
-)
-scheduler.add_job(
-    update_camera_photo,
-    "interval",
-    args=[BLA_BLA, SCENARIO_ID],
-    seconds=5,
-)
-scheduler.add_job(
-    update_camera_photo,
-    "interval",
-    args=[TEROCHNAYA, SCENARIO_ID],
-    seconds=5,
-)
-scheduler.add_job(
-    update_camera_photo,
-    "interval",
-    args=[CHILL_ZONE_SEVEN, SCENARIO_ID],
-    seconds=5,
+    seconds=10,
 )
 scheduler.start()
 

@@ -47,7 +47,7 @@ def update_camera_photo(camera_id: int, scenario_id: int) -> dict:
             datetime.now() - (kitchen_event.timestamp + timedelta(hours=5))
         ).total_seconds()
         > 120
-        else None
+        else " "
     )
     photo_path = __get_photo(kitchen_event)
     pd.DataFrame.from_dict(

@@ -33,7 +33,7 @@ async def get_start_keyboard() -> ReplyKeyboardMarkup:
         text="Бронирование переговорных", callback_data="booking"
     )
     keyboard_builder.button(
-        text="Гистограмма загруженности кухни", callback_data="statistics"
+        text="Загруженность кухни", callback_data="statistics"
     )
     return keyboard_builder.adjust(1).as_markup(
         one_time_keyboard=True, resize_keyboard=True

@@ -18,7 +18,7 @@ async def create_hist_of_day_disribution(
     fig, ax = plt.subplots()
     ax.bar(x_labels, grouped_df["value"], width=0.9, align="center")
     plt.gcf().autofmt_xdate(rotation=45)
-    plt.title(f"Гистограмма распределений людей за {x_data[0].date()}")
+    plt.title(f"Загруженность кухни за {x_data[0].date()}")
     plt.xlabel("Часы")
     plt.ylabel("Среднее количество человек")
     fig.savefig(path_to_png)

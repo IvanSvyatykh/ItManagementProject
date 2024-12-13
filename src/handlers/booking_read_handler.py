@@ -20,7 +20,7 @@ from handlers.utils.answer import (
     INPUT_PERIOD_MESS,
     BOOKING_STATUS_TEMPLATE,
 )
-from services.booking_service import (
+from services.booking_read_service import (
     get_booking_status,
     get_events,
     split_message_into_pages,
@@ -66,32 +66,23 @@ async def update_booking_message(
     next_booking_times = room_status["next_booking_time"]
 
     if next_booking_times:
-        first_event = next_booking_times[0]
-        first_line = f"{room_name} {first_event['start_time']} - {first_event['end_time']}"
-        events_text = f"{first_line}\n"
-
-        if room_name == "Зона отдыха 7 этаж":
-            padding = len(first_line) + 26
-        elif room_name == "Терочная":
-            padding = len(first_line) + 15
-        else:
-            padding = len(first_line) + 12
-
-        other_events = [
-            f"{' ' * padding}{event['start_time']} - {event['end_time']}"
-            for event in next_booking_times[1:]
-        ]
-        events_text += "\n".join(other_events)
+        booked_intervals = "\n".join(
+            f"       {event['start_time']} - {event['end_time']}"
+            for event in next_booking_times
+        )
+        events_text = f"❌ *Забронированные* промежутки времени:\n{booked_intervals}"
     else:
-        events_text = f"{room_name} На сегодня нет брони"
+        events_text = "✅ На сегодня *нет* брони."
 
-    message_text = f"""{booking_status} [{people_count}] - {events_text}"""
+        # Формируем текст сообщения
+    message_text = f"📍 *{room_name}*\n\n{events_text}"
 
     if from_refresh:
         try:
             media = types.InputMediaPhoto(
                 media=FSInputFile(room_status["photo_path"]),
                 caption=message_text,
+                parse_mode="Markdown",
             )
             await bot.edit_message_media(
                 chat_id=callback_query.from_user.id,
@@ -107,24 +98,9 @@ async def update_booking_message(
             chat_id=callback_query.from_user.id,
             photo=FSInputFile(room_status["photo_path"]),
             caption=message_text,
+            parse_mode="Markdown",
             reply_markup=await get_room_navigation_keyboard(),
         )
-
-
-@router.callback_query(lambda c: c.data == "to_book")
-async def to_book_handler(
-        callback_query: CallbackQuery, state: FSMContext
-):
-    await callback_query.message.delete()
-
-    google_calendar_url = "https://calendar.google.com/"
-    message_text = f"Перейдите по [ссылке]({google_calendar_url}), чтобы забронировать время."
-
-    await callback_query.message.answer(
-        text=message_text,
-        reply_markup=await get_main_keyboard(),
-        parse_mode="Markdown",
-    )
 
 
 @router.callback_query(lambda c: c.data.startswith("navigate_"))
@@ -152,7 +128,7 @@ async def booking_list_handler(
 
 
 async def show_period_selection(callback_query: CallbackQuery):
-    message_text = "Выберите период:"
+    message_text = "📅 Выберите период:"
     await callback_query.message.answer(
         message_text, reply_markup=await get_period_selection_keyboard()
     )
@@ -188,11 +164,10 @@ async def period_this_week_handler(callback_query: CallbackQuery):
 async def booking_choose_period_handler(
         callback_query: CallbackQuery, state: FSMContext
 ):
-    message_text = (
-        "Введите период в формате: год-месяц-день год-месяц-день"
-    )
     message = await callback_query.message.edit_text(
-        message_text, reply_markup=await get_main_keyboard()
+        text="✍🏻 Введите период в формате: *год-месяц-день год-месяц-день*",
+        parse_mode="Markdown",
+        reply_markup=await get_main_keyboard()
     )
     await state.update_data(messages_to_delete=[message.message_id])
     await state.set_state(UserState.waiting_for_period)
@@ -219,8 +194,9 @@ async def handle_period_input(message: types.Message, state: FSMContext):
 
         if not events:
             await message.answer(
-                f"Список бронирования {start_date.strftime('%Y-%m-%d')} - {end_date.strftime('%Y-%m-%d')}:\n"
+                f"📅 Список бронирования *{start_date.strftime('%Y-%m-%d')} - {end_date.strftime('%Y-%m-%d')}*:\n"
                 f" Нет событий.",
+                parse_mode="Markdown",
                 reply_markup=await get_main_keyboard()
             )
         else:
@@ -230,11 +206,12 @@ async def handle_period_input(message: types.Message, state: FSMContext):
                 f"{datetime.fromisoformat(event['end']['dateTime']).strftime('%H:%M')}"
                 for event in events
             ]
-            header = f"Список бронирования {start_date.strftime('%Y-%m-%d')} - {end_date.strftime('%Y-%m-%d')}:\n\n"
+            header = f"📅 Список бронирования *{start_date.strftime('%Y-%m-%d')} - {end_date.strftime('%Y-%m-%d')}*:\n\n"
             pages = split_message_into_pages(header + "\n".join(event_strings))
             if len(pages) == 1:
                 await message.answer(
                     pages[0],
+                    parse_mode="Markdown",
                     reply_markup=await get_main_keyboard()
                 )
             else:
@@ -250,7 +227,9 @@ async def handle_period_input(message: types.Message, state: FSMContext):
                 )
     except ValueError:
         error_message = await message.answer(
-            "Неверно введен период! Введите период в формате: год-месяц-день год-месяц-день"
+            text="⚠️ *Неверно* введен период! ⚠️\n"
+                 "✍🏻 Введите период в формате: *год-месяц-день год-месяц-день*",
+            parse_mode="Markdown",
         )
         messages_to_delete.append(error_message.message_id)
         await state.update_data(messages_to_delete=messages_to_delete)
@@ -264,12 +243,11 @@ async def send_events_message(
 ):
     if not events:
         message_text = (
-            f"Список бронирования {start_date.strftime('%Y-%m-%d')} - {end_date.strftime('%Y-%m-%d')}:\n"
+            f"📅 Список бронирования {start_date.strftime('%Y-%m-%d')} - {end_date.strftime('%Y-%m-%d')}:\n"
             f" Нет событий."
         )
     else:
-        message_text = f"Список бронирования {start_date.strftime('%Y-%m-%d')} - {end_date.strftime('%Y-%m-%d')}:\n"
-
+        message_text = f"📅 Список бронирования {start_date.strftime('%Y-%m-%d')} - {end_date.strftime('%Y-%m-%d')}:\n"
         event_strings = [
             f"{event.get('location', 'Без указания')} — "
             f"{datetime.fromisoformat(event['start']['dateTime']).strftime('%Y-%m-%d %H:%M')} - "

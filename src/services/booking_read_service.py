@@ -3,21 +3,37 @@ from datetime import datetime, time
 from aiogoogle import Aiogoogle
 from aiogoogle.auth.creds import ServiceAccountCreds
 import pytz
-from config import SERVICE_ACCOUNT_FILE, SCOPES, CALENDAR_ID
+from config import (
+    SERVICE_ACCOUNT_FILE,
+    SCOPES,
+    CALENDAR_ID,
+)
 from services.camera_events_service import get_last_camera_event
-from config import CHILL_ZONE_SEVEN, BLA_BLA, TEROCHNAYA
+from config import (
+    CHILL_ZONE_SEVEN,
+    BLA_BLA,
+    TEROCHNAYA,
+)
 
 LOCATION_MAP = {
     # Бла-Бла
+    "BLA-BLA": "Бла-Бла",
     "блабла": "Бла-Бла",
     "блаблакомната": "Бла-Бла",
+    "blabla": "Бла-Бла",
     # Тет-а-тет
+    "TET-A-TET": "Тет-а-тет",
     "тетатет": "Тет-а-тет",
     "тетатетошная": "Тет-а-тет",
+    "tetatet": "Тет-а-тет",
     # Терочная
+    "TEROCHNAYA": "Терочная",
     "терочная": "Терочная",
     "тёрочная": "Терочная",
+    "terochnaya": "Терочная",
     # Зона отдыха 7 этаж
+    "CHILL-ZONE-SEVEN": "Зона отдыха 7 этаж",
+    "chillzoneseven": "Зона отдыха 7 этаж",
     "зонаотдыха7": "Зона отдыха 7 этаж",
     "зонаотдыха7ой": "Зона отдыха 7 этаж",
     "зонаотдыха7эт": "Зона отдыха 7 этаж",
@@ -101,7 +117,7 @@ async def get_booking_status(room_name: str, scenario_id: int) -> dict:
 
 
 def split_message_into_pages(
-    text: str, limit: int = MESSAGE_LIMIT
+        text: str, limit: int = MESSAGE_LIMIT
 ) -> list[str]:
     lines = text.split("\n")
     pages, current_page = [], []
@@ -141,7 +157,7 @@ async def format_event(event: dict) -> str:
 
 
 async def get_events(
-    start_date: datetime, end_date: datetime
+        start_date: datetime, end_date: datetime
 ) -> list[dict]:
     async with Aiogoogle(service_account_creds=CREDS) as aiogoogle:
         calendar = await aiogoogle.discover("calendar", "v3")
@@ -170,7 +186,7 @@ async def get_next_event(location: str) -> list[dict]:
 
     for event in events_today:
         if location.lower() in (
-            (await normalize_location(event.get("location", ""))).lower()
+                (await normalize_location(event.get("location", ""))).lower()
         ):
             start_time = (
                 datetime.fromisoformat(event["start"]["dateTime"])
@@ -193,3 +209,53 @@ async def get_next_event(location: str) -> list[dict]:
 
     matched_events.sort(key=lambda x: x["start_time"])
     return matched_events
+
+
+async def get_booked_slots_for_room(
+        room_name: str, start_date: datetime, end_date: datetime
+) -> list[dict]:
+    events = await get_events(start_date, end_date)
+    booked_slots = []
+
+    for event in events:
+        location = await normalize_location(event.get("location", "").lower())
+
+        if room_name == location:
+            start_time = datetime.fromisoformat(event["start"]["dateTime"]).astimezone(TIMEZONE)
+            end_time = datetime.fromisoformat(event["end"]["dateTime"]).astimezone(TIMEZONE)
+
+            booked_slots.append(
+                {
+                    "start": start_time.strftime("%H:%M"),
+                    "end": end_time.strftime("%H:%M"),
+                }
+            )
+
+    return booked_slots
+
+
+def get_free_slots(
+        booked_slots: list[dict], day_start: datetime, day_end: datetime
+) -> list[dict]:
+    free_slots = []
+    current_time = day_start
+
+    # Перебираем все забронированные промежутки и выделяем свободные промежутки между ними
+    for booked in booked_slots:
+        booked_start = datetime.strptime(booked["start"], "%H:%M").replace(
+            year=day_start.year, month=day_start.month, day=day_start.day
+        )
+        booked_end = datetime.strptime(booked["end"], "%H:%M").replace(
+            year=day_start.year, month=day_start.month, day=day_start.day
+        )
+        if current_time < booked_start:
+            free_slots.append(
+                {"start": current_time.strftime("%H:%M"), "end": booked_start.strftime("%H:%M")}
+            )
+        current_time = booked_end
+
+    if current_time < day_end:
+        free_slots.append({"start": current_time.strftime("%H:%M"), "end": day_end.strftime("%H:%M")})
+        print(f"Добавлен последний промежуток: {current_time.strftime('%H:%M')} - {day_end.strftime('%H:%M')}")
+
+    return free_slots

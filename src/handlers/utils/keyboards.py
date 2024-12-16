@@ -130,6 +130,7 @@ async def get_room_selection_keyboard() -> InlineKeyboardMarkup:
     for room_name, callback in rooms:
         keyboard.button(text=room_name, callback_data=callback)
     keyboard.button(text="Назад", callback_data="update_booking")
+    keyboard.button(text="Вернуться в Меню", callback_data="menu")
     return keyboard.adjust(1).as_markup(resize_keyboard=True)
 
 
@@ -179,6 +180,7 @@ async def get_calendar_keyboard(
             keyboard.row(*week_row)
             week_row = []
 
+    keyboard.row(InlineKeyboardButton(text="Вернуться в Меню", callback_data="menu"))
     return keyboard.as_markup(resize_keyboard=True)
 
 
@@ -186,6 +188,7 @@ async def get_confirmation_date_keyboard() -> InlineKeyboardMarkup:
     keyboard = InlineKeyboardBuilder()
     keyboard.button(text="Да, продолжить бронирование", callback_data="confirm_date")
     keyboard.button(text="Нет, выбрать другую дату", callback_data="room_")
+    keyboard.button(text="Вернуться в Меню", callback_data="menu")
     return keyboard.adjust(1).as_markup(resize_keyboard=True)
 
 
@@ -232,7 +235,7 @@ async def generate_time_keyboard(
 
     keyboard.row(InlineKeyboardButton(text="Ввести вручную", callback_data="manual_time_input"))
     keyboard.row(InlineKeyboardButton(text="Отмена", callback_data="update_booking"))
-
+    keyboard.row(InlineKeyboardButton(text="Вернуться в Меню", callback_data="menu"))
     return keyboard.as_markup(resize_keyboard=True)
 
 
@@ -277,21 +280,23 @@ async def generate_duration_keyboard(
 
     keyboard.adjust(4)
     keyboard.row(InlineKeyboardButton(text="Отмена", callback_data="update_booking"))
-
+    keyboard.row(InlineKeyboardButton(text="Вернуться в меню", callback_data="menu"))
     return keyboard.as_markup(resize_keyboard=True)
 
 
 async def get_summary_keyboard() -> InlineKeyboardMarkup:
     keyboard = InlineKeyboardBuilder()
-    keyboard.button(text="Добавить заголовок", callback_data="add_summary")
-    keyboard.button(text="Пропустить", callback_data="skip_summary")
+    keyboard.button(text="Добавить", callback_data="add_summary")
+    keyboard.button(text="Продолжить, без названия", callback_data="skip_summary")
+    keyboard.button(text="Вернуться в меню", callback_data="menu")
     return keyboard.adjust(1).as_markup(resize_keyboard=True)
 
 
 async def get_description_keyboard() -> InlineKeyboardMarkup:
     keyboard = InlineKeyboardBuilder()
-    keyboard.button(text="Да", callback_data="add_description")
-    keyboard.button(text="Пропустить", callback_data="skip_description")
+    keyboard.button(text="Добавить", callback_data="add_description")
+    keyboard.button(text="Продолжить, без описания", callback_data="skip_description")
+    keyboard.button(text="Вернуться в меню", callback_data="menu")
     return keyboard.adjust(1).as_markup(resize_keyboard=True)
 
 
@@ -299,4 +304,5 @@ async def get_confirmation_booking_keyboard() -> InlineKeyboardMarkup:
     keyboard = InlineKeyboardBuilder()
     keyboard.button(text="Забронировать", callback_data="booking_confirmed")
     keyboard.button(text="Отменить", callback_data="update_booking")
+    keyboard.button(text="Вернуться в меню", callback_data="menu")
     return keyboard.adjust(1).as_markup(resize_keyboard=True)

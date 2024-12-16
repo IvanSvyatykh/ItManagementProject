@@ -277,7 +277,7 @@ async def handle_period_input(
         f"📍 {data['selected_room']}\n"
         f"📅 {data['selected_date']}\n"
         f"🕓 {start_time.strftime('%H:%M')} - {end_time.strftime('%H:%M')}\n\n"
-        "Добавить заголовок?",
+        "Добавить название встречи?",
         reply_markup=await get_summary_keyboard(),
         parse_mode="Markdown",
     )
@@ -336,7 +336,7 @@ async def handle_duration_selection(
              f"📍 Переговорная: {selected_room}\n"
              f"📅 Дата: {selected_date}\n"
              f"🕓 Время: {start_time_formatted} - {end_time_formatted}\n\n"
-             "Добавить заголовок?",
+             "Добавить название встречи?",
         reply_markup=await get_summary_keyboard(),
         parse_mode="Markdown",
     )
@@ -350,7 +350,7 @@ async def add_summary(
         callback: CallbackQuery, state: FSMContext
 ):
     await callback.message.edit_text(
-        text="✍🏻 Введите описание для вашего бронирования.",
+        text="✍🏻 Введите название для вашего бронирования.",
         reply_markup=await get_manual_input_keyboard(),
     )
     # Сохраняем ID сообщения для его удаления
@@ -383,7 +383,7 @@ async def handle_summary_input(
              f"📍 Переговорная: {selected_room}\n"
              f"📅 Дата: {selected_date}\n"
              f"🕓 Время: {start_time} - {end_time}\n"
-             f"📌 Заголовок {summary}\n\n"
+             f"📌 Название: {summary}\n\n"
              "Добавить описание?",
         reply_markup=await get_description_keyboard(),
         parse_mode="Markdown",
@@ -405,7 +405,7 @@ async def ask_summary_handler(
              f"📍 Переговорная: {selected_room}\n"
              f"📅 Дата: {selected_date}\n"
              f"🕓 Время: {start_time} - {end_time}\n"
-             f"📌 Заголовок {summary}\n\n"
+             f"📌 Название: {summary}\n\n"
              "Добавить описание?",
         reply_markup=await get_description_keyboard(),
         parse_mode="Markdown",
@@ -483,7 +483,7 @@ async def confirm_booking_handler(
              f"📍 Переговорная: {selected_room}\n"
              f"📅 Дата: {selected_date}\n"
              f"🕓 Время: {start_time} - {end_time}\n"
-             f"📌 Заголовок {summary}\n"
+             f"📌 Название: {summary}\n"
              f"📋 Описание: {description}",
         reply_markup=await get_confirmation_booking_keyboard(),
         parse_mode="Markdown",
@@ -525,7 +525,7 @@ async def booking_confirmed_handler(
                 f"📍 Переговорная: {selected_room}\n"
                 f"📅 Дата: {selected_date}\n"
                 f"🕓 Время: {start_time} - {end_time}\n"
-                f"📌 Заголовок {summary}\n"
+                f"📌 Название: {summary}\n"
                 f"📋 Описание: {description}"
             ),
             reply_markup=await get_main_keyboard(),

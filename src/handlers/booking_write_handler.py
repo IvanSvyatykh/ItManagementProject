@@ -366,7 +366,6 @@ async def handle_summary_input(
     data = await state.get_data()
     selected_room = data.get("selected_room")
     selected_date = data.get("selected_date")
-    selected_time = data.get("selected_time")
     bot_message_id = data.get("bot_message_id")
     start_time = data.get("start_time")
     end_time = data.get("end_time")

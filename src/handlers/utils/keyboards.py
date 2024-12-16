@@ -61,22 +61,30 @@ async def get_back_keyboard() -> InlineKeyboardMarkup:
 
 
 async def get_room_navigation_keyboard() -> InlineKeyboardMarkup:
+    """
+    Генерирует клавиатуру для выбора переговорной комнаты.
+    """
     keyboard_builder = InlineKeyboardBuilder()
 
+    # Кнопка "Обновить"
     keyboard_builder.button(
         text="Обновить", callback_data="update_booking_button"
     )
-    keyboard_builder.button(text="←", callback_data="navigate_left")
-    keyboard_builder.button(text="→", callback_data="navigate_right")
+    # Кнопки для выбора комнат
+    keyboard_builder.button(text="Бла-Бла", callback_data="navigate_0")
+    keyboard_builder.button(text="Зона отдыха 7эт.", callback_data="navigate_1")
+    keyboard_builder.button(text="Тет-а-Тет", callback_data="navigate_3")
+    keyboard_builder.button(text="Терочная", callback_data="navigate_2")
+
+    # Нижние кнопки
     keyboard_builder.button(
         text="Список брони", callback_data="booking_list"
     )
     keyboard_builder.button(text="Забронировать", callback_data="to_book")
     keyboard_builder.button(text="Меню", callback_data="menu")
 
-    return keyboard_builder.adjust(1, 2, 2, 1).as_markup(
-        resize_keyboard=True
-    )
+    # Устанавливаем нужное количество кнопок в строках
+    return keyboard_builder.adjust(1, 2, 2, 2, 1).as_markup(resize_keyboard=True)
 
 
 async def get_period_selection_keyboard() -> InlineKeyboardMarkup:

@@ -74,7 +74,6 @@ async def update_booking_message(
     else:
         events_text = "✅ На сегодня *нет* брони."
 
-        # Формируем текст сообщения
     message_text = f"📍 *{room_name}*\n\n{events_text}"
 
     if from_refresh:
@@ -104,18 +103,15 @@ async def update_booking_message(
 
 
 @router.callback_query(lambda c: c.data.startswith("navigate_"))
-async def navigate_rooms(callback_query: CallbackQuery, state: FSMContext):
-    data = await state.get_data()
-    current_index = data.get("current_room_index", 0)
-    direction = callback_query.data.split("_")[1]
+async def select_room(callback_query: CallbackQuery, state: FSMContext):
 
-    if direction == "left":
-        new_index = (current_index - 1) % len(ROOMS)
-    else:
-        new_index = (current_index + 1) % len(ROOMS)
+    room_index = int(callback_query.data.split("_")[1])
 
+    # Сохраняем индекс выбранной комнаты в состояние
     await state.update_data(from_refresh=True)
-    await state.update_data(current_room_index=new_index)
+    await state.update_data(current_room_index=room_index)
+
+    # Обновляем сообщение с информацией о выбранной комнате
     await update_booking_message(callback_query, state)
 
 

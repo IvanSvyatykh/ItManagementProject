@@ -20,7 +20,9 @@ class PostgresConfig:
         self.__url = f"postgresql+psycopg2://{user_name}:{password}@{domain}:{port}/{db_name}"
 
     def create_engine(self) -> None:
-        self.__engine = create_engine(self.__url, echo=True)
+        self.__engine = create_engine(
+            self.__url, echo=True, pool_size=2, max_overflow=0
+        )
 
     @property
     def engine(self) -> Engine:

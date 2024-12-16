@@ -62,24 +62,31 @@ async def update_booking_message(
 
     room_status = await get_booking_status(room_name, SCENARIO_ID)
     booking_status = room_status["status"]
-    people_count = room_status["people_count"]
     next_booking_times = room_status["next_booking_time"]
 
-    if next_booking_times:
+    if next_booking_times is None:
+        message_text = (
+            f"📍 *{room_name}*\n\n"
+            "🟢 На сегодня *нет брони*"
+        )
+    else:
         booked_intervals = "\n".join(
             f"       {event['start_time']} - {event['end_time']}"
             for event in next_booking_times
         )
-        events_text = f"❌ *Забронированные* промежутки времени:\n{booked_intervals}"
-    else:
-        events_text = "✅ На сегодня *нет* брони."
+        events_text = f"*Забронированные промежутки:*\n{booked_intervals}"
+        current_status_text = f"{booking_status}"
 
-    message_text = f"📍 *{room_name}*\n\n{events_text}"
+        message_text = (
+            f"📍 *{room_name}*\n\n"
+            f"{current_status_text}\n\n"
+            f"{events_text}"
+        )
 
     if from_refresh:
         try:
             media = types.InputMediaPhoto(
-                media=FSInputFile(room_status["photo_path"]),
+                media=FSInputFile(room_status.get("photo_path", "")),
                 caption=message_text,
                 parse_mode="Markdown",
             )
@@ -93,9 +100,9 @@ async def update_booking_message(
             print(f"Ошибка обновления сообщения: {e}")
     else:
         await callback_query.message.delete()
-        new_message = await bot.send_photo(
+        await bot.send_photo(
             chat_id=callback_query.from_user.id,
-            photo=FSInputFile(room_status["photo_path"]),
+            photo=FSInputFile(room_status.get("photo_path", "")),
             caption=message_text,
             parse_mode="Markdown",
             reply_markup=await get_room_navigation_keyboard(),
@@ -117,7 +124,7 @@ async def select_room(callback_query: CallbackQuery, state: FSMContext):
 
 @router.callback_query(lambda c: c.data == "booking_list")
 async def booking_list_handler(
-        callback_query: CallbackQuery, state: FSMContext
+        callback_query: CallbackQuery
 ):
     await callback_query.message.delete()
     await show_period_selection(callback_query)

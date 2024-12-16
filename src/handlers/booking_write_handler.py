@@ -1,4 +1,7 @@
-from datetime import datetime, timedelta
+import asyncio
+from datetime import datetime, timedelta, time
+import random
+import pytz
 from aiogram import Router, types, F
 from aiogram.types import CallbackQuery, User
 from aiogram.fsm.context import FSMContext
@@ -21,10 +24,12 @@ from services.booking_read_service import (
     get_booked_slots_for_room,
     get_free_slots,
     normalize_location,
+    get_events,
 )
 from handlers.utils.state_machine import BookingStates
 
 router = Router()
+TIMEZONE = pytz.timezone("Asia/Yekaterinburg")
 
 
 @router.callback_query(lambda c: c.data == "to_book")
@@ -398,7 +403,7 @@ async def ask_summary_handler(
     selected_date = data.get("selected_date")
     start_time = data.get("start_time")
     end_time = data.get("end_time")
-    summary = data.get("summary", "Без заголовка")
+    summary = data.get("summary", "Без названия")
     await callback.message.edit_text(
         text=f"Ваше бронирование:\n"
              f"📍 Переговорная: {selected_room}\n"
@@ -474,7 +479,7 @@ async def confirm_booking_handler(
     selected_date = data.get("selected_date")
     start_time = data.get("start_time")
     end_time = data.get("end_time")
-    summary = data.get("summary", "Без заголовка")
+    summary = data.get("summary", "Без названия")
     description = data.get("description", "Без описания")
 
     await callback.message.answer(
@@ -499,8 +504,42 @@ async def booking_confirmed_handler(
     selected_date = data.get("selected_date")
     start_time = data.get("start_time")
     end_time = data.get("end_time")
-    summary = data.get("summary", "Без заголовка")
+    summary = data.get("summary", "Без названия")
     description = data.get("description", "Без описания")
+
+    # Рандомная задержка, для уменьшения вероятности бронирования на одно и то же время
+    random_delay = random.uniform(0.5, 2)
+    await asyncio.sleep(random_delay)
+
+    start_datetime = datetime.fromisoformat(f"{selected_date}T{start_time}:00").astimezone(TIMEZONE)
+    end_datetime = datetime.fromisoformat(f"{selected_date}T{end_time}:00").astimezone(TIMEZONE)
+
+    start_of_day = datetime.combine(start_datetime.date(), time.min, tzinfo=TIMEZONE)
+    end_of_day = datetime.combine(start_datetime.date(), time.max, tzinfo=TIMEZONE)
+    events_today = await get_events(start_of_day, end_of_day)
+
+    normalized_room_name = await normalize_location(selected_room)
+    for event in events_today:
+        event_location = await normalize_location(event.get("location", ""))
+        if event_location != normalized_room_name:
+            continue
+
+        event_start = datetime.fromisoformat(event["start"]["dateTime"]).astimezone(TIMEZONE)
+        event_end = datetime.fromisoformat(event["end"]["dateTime"]).astimezone(TIMEZONE)
+
+        if max(event_start, start_datetime) < min(event_end, end_datetime):
+            await callback.message.edit_text(
+                text=(
+                    f"❌ Невозможно забронировать. На это время уже есть бронь:\n\n"
+                    f"📍 Переговорная: {selected_room}\n"
+                    f"🕓 {event_start.strftime('%H:%M')} - {event_end.strftime('%H:%M')}\n"
+                    f"📌 Название: {event.get('summary', 'Без названия')}\n"
+                ),
+                reply_markup=await get_main_keyboard(),
+                parse_mode="Markdown",
+            )
+            await state.clear()
+            return
 
     event_data = {
         "summary": f"{summary}",

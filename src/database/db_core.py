@@ -20,24 +20,24 @@ class PostgresConfig:
         self.__url = f"postgresql+psycopg2://{user_name}:{password}@{domain}:{port}/{db_name}"
 
     def create_engine(self) -> None:
-        self.__engine = create_engine(self.__url, echo=True)
+        self.__engine = create_engine(
+            self.__url, echo=True, pool_size=2, max_overflow=0
+        )
 
     @property
     def engine(self) -> Engine:
         return self.__engine
 
-    def start_connection(self) -> None:
-        self.__connection: Connection = self.__engine.connect()
-
-    def stop_connection(self) -> None:
-        self.__connection.close()
-
 
 class AuthDBUnitOfWork:
+    __session_factory = None
+
     def __init__(self, db_config: PostgresConfig):
-        self.__session_factory = sessionmaker(
-            autoflush=True, bind=db_config.engine
-        )
+
+        if self.__session_factory is None:
+            self.__session_factory = sessionmaker(
+                autoflush=True, bind=db_config.engine
+            )
 
     @contextmanager
     def start(self) -> Session:
@@ -57,10 +57,14 @@ class AuthDBUnitOfWork:
 
 
 class IsDBUnitOfWork:
+    __session_factory = None
+
     def __init__(self, db_config: PostgresConfig):
-        self.__session_factory = sessionmaker(
-            autoflush=True, bind=db_config.engine
-        )
+
+        if self.__session_factory is None:
+            self.__session_factory = sessionmaker(
+                autoflush=True, bind=db_config.engine
+            )
 
     @contextmanager
     def start(self) -> Session:

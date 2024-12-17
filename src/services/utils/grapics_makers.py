@@ -20,6 +20,5 @@ async def create_hist_of_day_disribution(
     plt.gcf().autofmt_xdate(rotation=45)
     plt.title(f"Загруженность кухни за {x_data[0].date()}")
     plt.xlabel("Часы")
-    plt.ylabel("Среднее количество человек")
     fig.savefig(path_to_png)
     plt.close(fig)

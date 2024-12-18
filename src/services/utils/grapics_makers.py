@@ -17,6 +17,7 @@ async def create_hist_of_day_disribution(
     x_labels = [dt.strftime("%H:%M") for dt in x_dates_grouped]
     fig, ax = plt.subplots()
     ax.bar(x_labels, grouped_df["value"], width=0.9, align="center")
+    ax.axes.yaxis.set_visible(False)
     plt.gcf().autofmt_xdate(rotation=45)
     plt.title(f"Загруженность кухни за {x_data[0].date()}")
     plt.xlabel("Часы")

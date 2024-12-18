@@ -1,11 +1,11 @@
-from datetime import datetime, timedelta
+from datetime import datetime
 from typing import List
-from sqlalchemy import func
+from sqlalchemy import func, insert
 from sqlalchemy.orm import Session
 from database.dto import CameraEventDto
 from database.is_db_models import MonitoringEvents
 
-from database.auth_db_models import Users
+from database.auth_db_models import Statistics, Users
 
 
 class AuthRepository:
@@ -24,6 +24,21 @@ class AuthRepository:
 
         print(user.is_active)
         return user.is_active
+
+
+class StatRepository:
+    def __init__(self, session: Session):
+        self.session = session
+
+    async def insert(self, action_type: str, datetime: datetime) -> int:
+        return self.session.scalar(
+            insert(Statistics)
+            .values(
+                action_type=action_type,
+                timestamp=datetime,
+            )
+            .returning(Statistics)
+        )
 
 
 class MonitoringEventsRepository:

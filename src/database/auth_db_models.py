@@ -23,8 +23,5 @@ class Statistics(Base):
     __tablename__ = "statistics"
     __table_args__ = {"schema": "public"}
     id = Column(Integer, primary_key=True)
-    user_phone_num = Column(
-        String, ForeignKey("public.users.phone_number")
-    )
     action_type = Column(String(32), nullable=False)
     timestamp = Column(TIMESTAMP, nullable=False)

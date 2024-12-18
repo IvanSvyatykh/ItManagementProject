@@ -2,7 +2,7 @@ from sqlalchemy import Connection, Engine, create_engine
 from sqlalchemy.orm import sessionmaker, Session
 from contextlib import contextmanager
 
-from database.repository import MonitoringEventsRepository
+from database.repository import MonitoringEventsRepository, StatRepository
 
 from database.repository import AuthRepository
 from config import (
@@ -75,6 +75,10 @@ class AuthDBUnitOfWork:
     @property
     def auth_repository(self) -> AuthRepository:
         return AuthRepository(self._session)
+
+    @property
+    def stat_repository(self) -> AuthRepository:
+        return StatRepository(self._session)
 
 
 class IsDBUnitOfWork:

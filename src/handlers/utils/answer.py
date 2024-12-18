@@ -15,3 +15,4 @@ MENU_MESSAGE = "Выберите одну из команд."
 BOOKING_STATUS_TEMPLATE = (
     """{status} [{people_count}] - {location} {start_time} {end_time}"""
 )
+BAD_CODE = "Не возможно получить фото сервер вернул {} статус."

@@ -1,14 +1,12 @@
+from ast import Dict
+from pathlib import Path
 from aiogram import Bot, Router
 from aiogram.fsm.context import FSMContext
-from aiogram.types import FSInputFile
-from aiogram.types import CallbackQuery
+from aiogram.types import CallbackQuery, FSInputFile
 from config import BOT_TOKEN
-from handlers.utils.answer import (
-    KITCHEN_PHOTO_CAPTURE,
-    NOT_ALLOWED_FUNC,
-)
-from config import KITCHEN_ID, SCENARIO_ID
-from services.camera_events_service import get_last_camera_event
+from handlers.utils.answer import NOT_ALLOWED_FUNC, BAD_CODE
+from config import KITCHEN_ID
+from services.camera_events_service import get_last_camera_snapshot
 from handlers.utils.keyboards import get_kitchen_keyboard
 
 router = Router()
@@ -16,13 +14,20 @@ router = Router()
 
 async def send_kitchen_info(chat_id: str, state: FSMContext) -> None:
     bot = Bot(token=BOT_TOKEN)
-    kitchen_info = await get_last_camera_event(KITCHEN_ID)
-    message = await bot.send_photo(
-        chat_id=chat_id,
-        photo=FSInputFile(kitchen_info["path_to_photo"]),
-        reply_markup=await get_kitchen_keyboard(),
+    response: Dict[int, Path | None] = await get_last_camera_snapshot(
+        KITCHEN_ID, chat_id
     )
-    await state.update_data(message_id=message.message_id)
+    if response["status"] == 200:
+        message = await bot.send_photo(
+            chat_id=chat_id,
+            photo=FSInputFile(response["path"]),
+            reply_markup=await get_kitchen_keyboard(),
+        )
+        await state.update_data(message_id=message.message_id)
+    else:
+        await bot.send_message(
+            chat_id=chat_id, text=BAD_CODE.format(response["status"])
+        )
 
 
 @router.callback_query(lambda c: c.data == "kitchen_info")

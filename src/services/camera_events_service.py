@@ -1,7 +1,8 @@
+from typing import Tuple
 from datetime import datetime, timedelta
 from pathlib import Path
 import pandas as pd
-
+import requests
 import requests
 from database.dto import CameraEventDto
 from database.db_core import PostgresConfig, IsDBUnitOfWork
@@ -12,6 +13,40 @@ from config import (
     POSTGRES_DB_NAME,
     POSTGRES_PORT,
 )
+
+AUTH_TOKEN = None
+
+
+async def __get_token(login: str, password: str) -> str:
+    res = requests.post(
+        "https://api.platform-vision.is74.ru/login/",
+        data={"username": login, "password": password},
+    )
+    return res.json()["access_token"]
+
+
+async def get_last_camera_snapshot(
+    camera_id: int, chat_id: int
+) -> Tuple[int, Path | None]:
+    global AUTH_TOKEN
+
+    res = requests.get(
+        f"https://api.platform-vision.is74.ru/projects/87/cameras/{camera_id}/snapshot",
+        headers={"Authorization": f"Bearer {AUTH_TOKEN}"},
+    )
+    if res.status_code == 401:
+        AUTH_TOKEN = await __get_token("iit_user", "JOR2L6")
+        res = requests.get(
+            f"https://api.platform-vision.is74.ru/projects/87/cameras/{camera_id}/snapshot",
+            headers={"Authorization": f"Bearer {AUTH_TOKEN}"},
+        )
+    if res.status_code == 200:
+        path = Path(f"src/files/photos/{chat_id}.jpg")
+        with open(path, "wb") as f:
+            f.write(res.content)
+        return {"status": res.status_code, "path": path}
+
+    return {"status": res.status_code, "path": None}
 
 
 async def get_last_camera_event(camera_id: int) -> dict:

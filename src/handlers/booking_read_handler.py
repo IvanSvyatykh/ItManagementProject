@@ -64,7 +64,9 @@ async def update_booking_message(
     room_index = data.get("current_room_index", 0)
     room_name = ROOMS[room_index]
 
-    room_status = await get_booking_status(room_name, SCENARIO_ID)
+    room_status = await get_booking_status(
+        room_name, callback_query.message.chat.id
+    )
     booking_status = room_status["status"]
     next_booking_times = room_status["next_booking_time"]
 

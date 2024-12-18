@@ -1,8 +1,7 @@
-from typing import Tuple
+from typing import Dict
 from datetime import datetime, timedelta
 from pathlib import Path
 import pandas as pd
-import requests
 import requests
 from database.dto import CameraEventDto
 from database.db_core import PostgresConfig, IsDBUnitOfWork
@@ -27,7 +26,7 @@ async def __get_token(login: str, password: str) -> str:
 
 async def get_last_camera_snapshot(
     camera_id: int, chat_id: int
-) -> Tuple[int, Path | None]:
+) -> Dict[int, Path | None]:
     global AUTH_TOKEN
 
     res = requests.get(

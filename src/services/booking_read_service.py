@@ -8,7 +8,9 @@ from config import (
     SCOPES,
     CALENDAR_ID,
 )
-from services.camera_events_service import get_last_camera_event
+from services.camera_events_service import (
+    get_last_camera_snapshot,
+)
 from config import (
     CHILL_ZONE_SEVEN,
     BLA_BLA,
@@ -100,9 +102,9 @@ CREDS = ServiceAccountCreds(
 )
 
 
-async def get_booking_status(room_name: str, scenario_id: int) -> dict:
-    room_info = await get_last_camera_event(
-        camera_id=ROOMS_ID[room_name]
+async def get_booking_status(room_name: str, chat_id: int) -> dict:
+    room_info = await get_last_camera_snapshot(
+        camera_id=ROOMS_ID[room_name], chat_id=chat_id
     )
     now = datetime.now(TIMEZONE)
     start_of_day = datetime.combine(now.date(), time.min, tzinfo=TIMEZONE)
@@ -112,22 +114,27 @@ async def get_booking_status(room_name: str, scenario_id: int) -> dict:
     normalized_room_name = await normalize_location(room_name)
 
     room_events = [
-        event for event in events_today
-        if await normalize_location(event.get("location", "")) == normalized_room_name
+        event
+        for event in events_today
+        if await normalize_location(event.get("location", ""))
+        == normalized_room_name
     ]
 
     if not room_events:
         return {
             "status": None,
-            "photo_path": room_info["path_to_photo"],
-            "meta": room_info["meta"],
+            "photo_path": room_info["path"],
             "next_booking_time": None,
         }
 
     current_booking = None
     for event in room_events:
-        start_time = datetime.fromisoformat(event["start"]["dateTime"]).astimezone(TIMEZONE)
-        end_time = datetime.fromisoformat(event["end"]["dateTime"]).astimezone(TIMEZONE)
+        start_time = datetime.fromisoformat(
+            event["start"]["dateTime"]
+        ).astimezone(TIMEZONE)
+        end_time = datetime.fromisoformat(
+            event["end"]["dateTime"]
+        ).astimezone(TIMEZONE)
         if start_time <= now <= end_time:
             current_booking = {"start": start_time, "end": end_time}
             break
@@ -139,22 +146,27 @@ async def get_booking_status(room_name: str, scenario_id: int) -> dict:
 
     all_events = [
         {
-            "start_time": datetime.fromisoformat(event["start"]["dateTime"]).astimezone(TIMEZONE).strftime("%H:%M"),
-            "end_time": datetime.fromisoformat(event["end"]["dateTime"]).astimezone(TIMEZONE).strftime("%H:%M"),
+            "start_time": datetime.fromisoformat(
+                event["start"]["dateTime"]
+            )
+            .astimezone(TIMEZONE)
+            .strftime("%H:%M"),
+            "end_time": datetime.fromisoformat(event["end"]["dateTime"])
+            .astimezone(TIMEZONE)
+            .strftime("%H:%M"),
         }
         for event in room_events
     ]
 
     return {
         "status": status,
-        "photo_path": room_info["path_to_photo"],
-        "meta": room_info["meta"],
+        "photo_path": room_info["path"],
         "next_booking_time": all_events,
     }
 
 
 def split_message_into_pages(
-        text: str, limit: int = MESSAGE_LIMIT
+    text: str, limit: int = MESSAGE_LIMIT
 ) -> list[str]:
     lines = text.split("\n")
     pages, current_page = [], []
@@ -194,7 +206,7 @@ async def format_event(event: dict) -> str:
 
 
 async def get_events(
-        start_date: datetime, end_date: datetime
+    start_date: datetime, end_date: datetime
 ) -> list[dict]:
     async with Aiogoogle(service_account_creds=CREDS) as aiogoogle:
         calendar = await aiogoogle.discover("calendar", "v3")
@@ -223,7 +235,7 @@ async def get_next_event(location: str) -> list[dict]:
 
     for event in events_today:
         if location.lower() in (
-                (await normalize_location(event.get("location", ""))).lower()
+            (await normalize_location(event.get("location", ""))).lower()
         ):
             start_time = (
                 datetime.fromisoformat(event["start"]["dateTime"])
@@ -249,17 +261,23 @@ async def get_next_event(location: str) -> list[dict]:
 
 
 async def get_booked_slots_for_room(
-        room_name: str, start_date: datetime, end_date: datetime
+    room_name: str, start_date: datetime, end_date: datetime
 ) -> list[dict]:
     events = await get_events(start_date, end_date)
     booked_slots = []
 
     for event in events:
-        location = await normalize_location(event.get("location", "").lower())
+        location = await normalize_location(
+            event.get("location", "").lower()
+        )
 
         if room_name == location:
-            start_time = datetime.fromisoformat(event["start"]["dateTime"]).astimezone(TIMEZONE)
-            end_time = datetime.fromisoformat(event["end"]["dateTime"]).astimezone(TIMEZONE)
+            start_time = datetime.fromisoformat(
+                event["start"]["dateTime"]
+            ).astimezone(TIMEZONE)
+            end_time = datetime.fromisoformat(
+                event["end"]["dateTime"]
+            ).astimezone(TIMEZONE)
 
             booked_slots.append(
                 {
@@ -272,7 +290,7 @@ async def get_booked_slots_for_room(
 
 
 def get_free_slots(
-        booked_slots: list[dict], day_start: datetime, day_end: datetime
+    booked_slots: list[dict], day_start: datetime, day_end: datetime
 ) -> list[dict]:
     free_slots = []
     current_time = day_start
@@ -287,12 +305,22 @@ def get_free_slots(
         )
         if current_time < booked_start:
             free_slots.append(
-                {"start": current_time.strftime("%H:%M"), "end": booked_start.strftime("%H:%M")}
+                {
+                    "start": current_time.strftime("%H:%M"),
+                    "end": booked_start.strftime("%H:%M"),
+                }
             )
         current_time = booked_end
 
     if current_time < day_end:
-        free_slots.append({"start": current_time.strftime("%H:%M"), "end": day_end.strftime("%H:%M")})
-        print(f"Добавлен последний промежуток: {current_time.strftime('%H:%M')} - {day_end.strftime('%H:%M')}")
+        free_slots.append(
+            {
+                "start": current_time.strftime("%H:%M"),
+                "end": day_end.strftime("%H:%M"),
+            }
+        )
+        print(
+            f"Добавлен последний промежуток: {current_time.strftime('%H:%M')} - {day_end.strftime('%H:%M')}"
+        )
 
     return free_slots

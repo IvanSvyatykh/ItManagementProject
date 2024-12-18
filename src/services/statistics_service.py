@@ -1,29 +1,13 @@
 from datetime import datetime, timedelta
 from pathlib import Path
 from database.db_core import PostgresConfig, IsDBUnitOfWork
-from config import (
-    POSTGRES_USER,
-    POSTGRES_PASSWORD,
-    POSTGRES_DOMAIN,
-    POSTGRES_DB_NAME,
-    POSTGRES_PORT,
-)
 from services.utils.grapics_makers import create_hist_of_day_disribution
 
 
 async def get_people_disribution_on_kitchen_by_day(
     camera_id: int, scenario_id: int, date: datetime, user_id: int
 ) -> Path:
-    config = PostgresConfig(
-        user_name=POSTGRES_USER,
-        password=POSTGRES_PASSWORD,
-        domain=POSTGRES_DOMAIN,
-        port=POSTGRES_PORT,
-        db_name=POSTGRES_DB_NAME,
-    )
-
-    config.create_engine()
-    uow = IsDBUnitOfWork(config)
+    uow = IsDBUnitOfWork()
     with uow.start() as session:
         events = await session.monitoring_events_repository.get_day_camera_events(
             camera_id, scenario_id, date.date()

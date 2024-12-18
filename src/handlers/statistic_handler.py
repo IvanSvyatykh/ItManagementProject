@@ -3,6 +3,7 @@ from pathlib import Path
 from aiogram import Router
 from aiogram.types import CallbackQuery
 from aiogram.types import FSInputFile
+from database.db_core import AuthDBUnitOfWork
 from handlers.utils.answer import STATISTIC_MESS, NO_CAMERA_EVENTS
 from config import KITCHEN_ID, SCENARIO_ID
 from handlers.utils.keyboards import get_back_keyboard
@@ -15,13 +16,15 @@ router = Router()
 
 @router.callback_query(lambda c: c.data == "statistics")
 async def kitchen_statistics(callback_query: CallbackQuery):
+    uow = AuthDBUnitOfWork()
+    with uow.start() as session:
+        await session.stat_repository.insert(
+            "stat_diagrams", datetime.now()
+        )
     reply_markup = await get_back_keyboard()
-    await callback_query.message.answer(
-        text="Сервис временно не работает", reply_markup=reply_markup
-    )
     for i in range(1, 4):
 
-        """date = datetime.today() - timedelta(days=i)
+        date = datetime.today() - timedelta(days=i)
         path: Path | None = await get_people_disribution_on_kitchen_by_day(
             KITCHEN_ID,
             SCENARIO_ID,
@@ -39,4 +42,4 @@ async def kitchen_statistics(callback_query: CallbackQuery):
                 photo=FSInputFile(path),
                 caption=STATISTIC_MESS.format(date.date()),
                 reply_markup=reply_markup,
-            )"""
+            )

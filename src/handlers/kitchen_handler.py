@@ -1,9 +1,11 @@
 from ast import Dict
+from datetime import datetime
 from pathlib import Path
 from aiogram import Bot, Router
 from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery, FSInputFile
 from config import BOT_TOKEN
+from database.db_core import AuthDBUnitOfWork
 from handlers.utils.answer import NOT_ALLOWED_FUNC, BAD_CODE
 from config import KITCHEN_ID
 from services.camera_events_service import get_last_camera_snapshot
@@ -14,6 +16,11 @@ router = Router()
 
 async def send_kitchen_info(chat_id: str, state: FSMContext) -> None:
     bot = Bot(token=BOT_TOKEN)
+    uow = AuthDBUnitOfWork()
+    with uow.start() as session:
+        await session.stat_repository.insert(
+            "kitchen_photo", datetime.now()
+        )
     response: Dict[int, Path | None] = await get_last_camera_snapshot(
         KITCHEN_ID, chat_id
     )

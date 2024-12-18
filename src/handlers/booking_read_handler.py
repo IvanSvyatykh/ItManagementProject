@@ -110,6 +110,7 @@ async def update_booking_message(
             parse_mode="Markdown",
             reply_markup=await get_room_navigation_keyboard(),
         )
+    room_status["photo_path"].unlink()
 
 
 @router.callback_query(lambda c: c.data.startswith("navigate_"))

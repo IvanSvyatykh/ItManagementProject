@@ -30,6 +30,7 @@ async def send_kitchen_info(chat_id: str, state: FSMContext) -> None:
             photo=FSInputFile(response["path"]),
             reply_markup=await get_kitchen_keyboard(),
         )
+        response["path"].unlink()
         await state.update_data(message_id=message.message_id)
     else:
         await bot.send_message(

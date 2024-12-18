@@ -29,7 +29,6 @@ async def kitchen_statistics(callback_query: CallbackQuery):
             KITCHEN_ID,
             SCENARIO_ID,
             date,
-            callback_query.message.from_user.id,
         )
         reply_markup = await get_back_keyboard() if i == 3 else None
         if path is None:

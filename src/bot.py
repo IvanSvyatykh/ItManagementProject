@@ -9,6 +9,7 @@ from aiogram.webhook.aiohttp_server import (
     SimpleRequestHandler,
     setup_application,
 )
+
 from config import (
     KITCHEN_ID,
     SCENARIO_ID,
@@ -25,22 +26,6 @@ from handlers import (
     booking_read_handler,
     booking_write_handler,
 )
-
-
-def update_photo():
-    update_camera_photo(CHILL_ZONE_SEVEN, SCENARIO_ID)
-    update_camera_photo(TEROCHNAYA, SCENARIO_ID)
-    update_camera_photo(BLA_BLA, SCENARIO_ID)
-    update_camera_photo(KITCHEN_ID, SCENARIO_ID)
-
-
-scheduler = BackgroundScheduler()
-scheduler.add_job(
-    update_photo,
-    "interval",
-    seconds=15,
-)
-scheduler.start()
 
 
 async def on_startup(bot: Bot) -> None:
@@ -81,6 +66,7 @@ async def main():
         dispatcher=dp,
         bot=bot,
     )
+
     await set_up_logger(Path("src/logs/bot_logs.log"))
     webhook_requests_handler.register(app, path=WEB_HOOK_PATH)
     setup_application(app, dp, bot=bot)

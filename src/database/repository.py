@@ -31,7 +31,7 @@ class StatRepository:
         self.session = session
 
     async def insert(
-        self, action_type: str, datetime: datetime, chat_id: int
+        self, action_type: str, datetime: datetime, chat_id: str
     ) -> int:
         return self.session.scalar(
             insert(Statistics)

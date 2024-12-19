@@ -24,4 +24,4 @@ class Statistics(Base):
     id = Column(Integer, primary_key=True)
     action_type = Column(String(32), nullable=False)
     timestamp = Column(TIMESTAMP, nullable=False)
-    chat_id = Column(Integer, nullable=False)
+    chat_id = Column(String(32), nullable=False)

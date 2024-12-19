@@ -1,5 +1,6 @@
 import json
 from datetime import datetime, time
+from pathlib import Path
 from aiogoogle import Aiogoogle
 from aiogoogle.auth.creds import ServiceAccountCreds
 import pytz
@@ -68,7 +69,7 @@ LOCATION_MAP = {
 }
 
 ROOMS_ID = {
-    "Тет-а-тет": BLA_BLA,
+    "Тет-а-тет": None,
     "Бла-Бла": BLA_BLA,
     "Зона отдыха 7 этаж": CHILL_ZONE_SEVEN,
     "7 этаж у проектора": CHILL_ZONE_SEVEN,
@@ -102,10 +103,20 @@ CREDS = ServiceAccountCreds(
 )
 
 
-async def get_booking_status(room_name: str, chat_id: int) -> dict:
+async def get_snapshot_path(room_name: str, chat_id: int) -> dict:
+    if ROOMS_ID[room_name] is None:
+        return {
+            "status": None,
+            "path": Path("src/files/photos/no_photo.jpg"),
+        }
     room_info = await get_last_camera_snapshot(
         camera_id=ROOMS_ID[room_name], chat_id=chat_id
     )
+    return room_info
+
+
+async def get_booking_status(room_name: str, chat_id: int) -> dict:
+    room_info = await get_snapshot_path(room_name, chat_id=chat_id)
     now = datetime.now(TIMEZONE)
     start_of_day = datetime.combine(now.date(), time.min, tzinfo=TIMEZONE)
     end_of_day = datetime.combine(now.date(), time.max, tzinfo=TIMEZONE)
@@ -125,6 +136,7 @@ async def get_booking_status(room_name: str, chat_id: int) -> dict:
             "status": None,
             "photo_path": room_info["path"],
             "next_booking_time": None,
+            "response_code": room_info["status"],
         }
 
     current_booking = None
@@ -162,6 +174,7 @@ async def get_booking_status(room_name: str, chat_id: int) -> dict:
         "status": status,
         "photo_path": room_info["path"],
         "next_booking_time": all_events,
+        "response_code": room_info["status"],
     }
 
 

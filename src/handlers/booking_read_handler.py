@@ -1,10 +1,9 @@
 from datetime import datetime, time, timedelta
 from aiogram import Bot, types, Router, F
-from config import BOT_TOKEN, SCENARIO_ID
+from config import BOT_TOKEN
 from aiogram.types import (
     FSInputFile,
     CallbackQuery,
-    InputMediaPhoto,
 )
 from aiogram.fsm.context import FSMContext
 from database.db_core import AuthDBUnitOfWork
@@ -43,7 +42,7 @@ async def booking_handler(
     uow = AuthDBUnitOfWork()
     with uow.start() as session:
         await session.stat_repository.insert(
-            "booking", datetime.now(), callback_query.message.chat.id
+            "booking", datetime.now(), str(callback_query.message.chat.id)
         )
     user_data = await state.get_data()
     if (
@@ -96,7 +95,7 @@ async def update_booking_message(
                 parse_mode="Markdown",
             )
             await bot.edit_message_media(
-                chat_id=callback_query.from_user.id,
+                chat_id=callback_query.message.chat.id,
                 message_id=callback_query.message.message_id,
                 media=media,
                 reply_markup=await get_room_navigation_keyboard(),
@@ -106,13 +105,14 @@ async def update_booking_message(
     else:
         await callback_query.message.delete()
         await bot.send_photo(
-            chat_id=callback_query.from_user.id,
+            chat_id=callback_query.message.chat.id,
             photo=FSInputFile(room_status.get("photo_path", "")),
             caption=message_text,
             parse_mode="Markdown",
             reply_markup=await get_room_navigation_keyboard(),
         )
-    room_status["photo_path"].unlink()
+    if room_status["response_code"] is not None:
+        room_status["photo_path"].unlink()
 
 
 @router.callback_query(lambda c: c.data.startswith("navigate_"))

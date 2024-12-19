@@ -19,7 +19,9 @@ async def kitchen_statistics(callback_query: CallbackQuery):
     uow = AuthDBUnitOfWork()
     with uow.start() as session:
         await session.stat_repository.insert(
-            "stat_diagrams", datetime.now(), callback_query.message.chat.id
+            "stat_diagrams",
+            datetime.now(),
+            str(callback_query.message.chat.id),
         )
     reply_markup = await get_back_keyboard()
     for i in range(1, 4):

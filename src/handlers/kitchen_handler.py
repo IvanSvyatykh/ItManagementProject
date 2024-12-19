@@ -19,7 +19,7 @@ async def send_kitchen_info(chat_id: str, state: FSMContext) -> None:
     uow = AuthDBUnitOfWork()
     with uow.start() as session:
         await session.stat_repository.insert(
-            "kitchen_photo", datetime.now()
+            "kitchen_photo", datetime.now(), chat_id
         )
     response: Dict[int, Path | None] = await get_last_camera_snapshot(
         KITCHEN_ID, chat_id

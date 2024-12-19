@@ -42,7 +42,9 @@ async def booking_handler(
 ):
     uow = AuthDBUnitOfWork()
     with uow.start() as session:
-        await session.stat_repository.insert("booking", datetime.now())
+        await session.stat_repository.insert(
+            "booking", datetime.now(), callback_query.message.chat.id
+        )
     user_data = await state.get_data()
     if (
         "phone_number" not in user_data

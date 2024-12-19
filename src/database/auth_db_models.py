@@ -2,7 +2,6 @@ from sqlalchemy import (
     Column,
     String,
     BOOLEAN,
-    ForeignKey,
     TIMESTAMP,
     Integer,
 )
@@ -25,3 +24,4 @@ class Statistics(Base):
     id = Column(Integer, primary_key=True)
     action_type = Column(String(32), nullable=False)
     timestamp = Column(TIMESTAMP, nullable=False)
+    user_id = Column(Integer, nullable=False)

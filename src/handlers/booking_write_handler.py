@@ -92,7 +92,6 @@ async def confirm_date(callback: CallbackQuery, state: FSMContext):
 async def change_month(callback: CallbackQuery):
     try:
         parts = callback.data.split("_")
-
         _, _, year, month = parts
         year = int(year)
         month = int(month)

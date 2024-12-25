@@ -124,6 +124,8 @@ async def get_booking_status(room_name: str, chat_id: int) -> dict:
     events_today = await get_events(start_of_day, end_of_day)
     normalized_room_name = await normalize_location(room_name)
 
+    print(events_today)
+
     room_events = [
         event
         for event in events_today
@@ -156,19 +158,25 @@ async def get_booking_status(room_name: str, chat_id: int) -> dict:
     else:
         status = "🟢 Сейчас не *забронирована*"
 
-    all_events = [
-        {
-            "start_time": datetime.fromisoformat(
-                event["start"]["dateTime"]
-            )
-            .astimezone(TIMEZONE)
-            .strftime("%H:%M"),
-            "end_time": datetime.fromisoformat(event["end"]["dateTime"])
-            .astimezone(TIMEZONE)
-            .strftime("%H:%M"),
-        }
-        for event in room_events
-    ]
+    all_events = []
+    for event in room_events:
+        start_time = datetime.fromisoformat(event["start"]["dateTime"]).astimezone(TIMEZONE).strftime("%H:%M")
+        end_time = datetime.fromisoformat(event["end"]["dateTime"]).astimezone(TIMEZONE).strftime("%H:%M")
+
+        # Проверяем, кто создал событие
+        creator_email = event.get("creator", {}).get("email", "Неизвестно")
+        custom_creator = event.get("extendedProperties", {}).get("private", {}).get("custom_creator")
+
+        if creator_email == "id-it-management-project-bot@graphic-brook-442918-k4.iam.gserviceaccount.com" and custom_creator:
+            creator = custom_creator
+        else:
+            creator = creator_email
+
+        all_events.append({
+            "start_time": start_time,
+            "end_time": end_time,
+            "creator": creator,
+        })
 
     return {
         "status": status,
@@ -176,6 +184,8 @@ async def get_booking_status(room_name: str, chat_id: int) -> dict:
         "next_booking_time": all_events,
         "response_code": room_info["status"],
     }
+
+
 
 
 def split_message_into_pages(

@@ -540,6 +540,9 @@ async def booking_confirmed_handler(
             await state.clear()
             return
 
+    # Тег пользователя, который инициировал бронирование
+    custom_creator = f"@{callback.from_user.username}" if callback.from_user.username else "unknown"
+
     event_data = {
         "summary": f"{summary}",
         "description": description,
@@ -555,7 +558,7 @@ async def booking_confirmed_handler(
     }
 
     try:
-        await create_google_calendar_event(event_data)
+        await create_google_calendar_event(event_data, custom_creator)
         await callback.message.edit_text(
             text=(
                 f"✅ Переговорная успешно забронирована:\n\n"

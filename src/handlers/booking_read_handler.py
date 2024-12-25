@@ -37,7 +37,7 @@ ROOMS = [
 
 @router.callback_query(lambda c: c.data == "booking")
 async def booking_handler(
-    callback_query: CallbackQuery, state: FSMContext
+        callback_query: CallbackQuery, state: FSMContext
 ):
     uow = AuthDBUnitOfWork()
     with uow.start() as session:
@@ -46,8 +46,8 @@ async def booking_handler(
         )
     user_data = await state.get_data()
     if (
-        "phone_number" not in user_data
-        or user_data["phone_number"] is None
+            "phone_number" not in user_data
+            or user_data["phone_number"] is None
     ):
         await callback_query.message.answer(text=NOT_ALLOWED_FUNC)
     else:
@@ -57,7 +57,7 @@ async def booking_handler(
 
 @router.callback_query(lambda c: c.data == "update_booking")
 async def update_booking_message(
-    callback_query: CallbackQuery, state: FSMContext
+        callback_query: CallbackQuery, state: FSMContext
 ):
     bot = Bot(token=BOT_TOKEN)
     data = await state.get_data()
@@ -75,7 +75,7 @@ async def update_booking_message(
         message_text = f"📍 *{room_name}*\n\n" "🟢 На сегодня *нет брони*"
     else:
         booked_intervals = "\n".join(
-            f"       {event['start_time']} - {event['end_time']}"
+            f"       {event['start_time']} - {event['end_time']} - {event['creator']}"
             for event in next_booking_times
         )
         events_text = f"*Забронированные промежутки:*\n{booked_intervals}"
@@ -93,6 +93,7 @@ async def update_booking_message(
                 media=FSInputFile(room_status.get("photo_path", "")),
                 caption=message_text,
                 parse_mode="Markdown",
+                reply_markup=await get_room_navigation_keyboard(),
             )
             await bot.edit_message_media(
                 chat_id=callback_query.message.chat.id,
@@ -117,7 +118,6 @@ async def update_booking_message(
 
 @router.callback_query(lambda c: c.data.startswith("navigate_"))
 async def select_room(callback_query: CallbackQuery, state: FSMContext):
-
     room_index = int(callback_query.data.split("_")[1])
 
     # Сохраняем индекс выбранной комнаты в состояние
@@ -169,7 +169,7 @@ async def period_this_week_handler(callback_query: CallbackQuery):
 
 @router.callback_query(lambda c: c.data == "period_input_period")
 async def booking_choose_period_handler(
-    callback_query: CallbackQuery, state: FSMContext
+        callback_query: CallbackQuery, state: FSMContext
 ):
     message = await callback_query.message.edit_text(
         text="✍🏻 Введите период в формате: *год-месяц-день год-месяц-день*",
@@ -239,7 +239,7 @@ async def handle_period_input(message: types.Message, state: FSMContext):
     except ValueError:
         error_message = await message.answer(
             text="⚠️ *Неверно* введен период! ⚠️\n"
-            "✍🏻 Введите период в формате: *год-месяц-день год-месяц-день*",
+                 "✍🏻 Введите период в формате: *год-месяц-день год-месяц-день*",
             parse_mode="Markdown",
         )
         messages_to_delete.append(error_message.message_id)
@@ -247,10 +247,10 @@ async def handle_period_input(message: types.Message, state: FSMContext):
 
 
 async def send_events_message(
-    callback_query: CallbackQuery,
-    start_date: datetime,
-    end_date: datetime,
-    events: list,
+        callback_query: CallbackQuery,
+        start_date: datetime,
+        end_date: datetime,
+        events: list,
 ):
     if not events:
         message_text = (
@@ -274,7 +274,7 @@ async def send_events_message(
 
 @router.callback_query(lambda c: c.data.startswith("page_"))
 async def handle_pagination(
-    callback_query: CallbackQuery, state: FSMContext
+        callback_query: CallbackQuery, state: FSMContext
 ):
     data = await state.get_data()
     pages = data.get("pages", [])
@@ -290,7 +290,7 @@ async def handle_pagination(
 
 @router.callback_query(lambda c: c.data == "update_booking_button")
 async def update_booking_button(
-    callback_query: CallbackQuery, state: FSMContext
+        callback_query: CallbackQuery, state: FSMContext
 ):
     await state.update_data(from_refresh=True)
     await update_booking_message(callback_query, state)

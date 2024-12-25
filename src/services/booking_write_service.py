@@ -31,9 +31,16 @@ CREDS = ServiceAccountCreds(
 )
 
 
-async def create_google_calendar_event(event_data):
+async def create_google_calendar_event(event_data, custom_creator):
     async with Aiogoogle(service_account_creds=CREDS) as aiogoogle:
         calendar_api = await aiogoogle.discover("calendar", "v3")
+        # Добавляем custom_creator в extendedProperties
+        # Чтобы при бронировании через бота, можно было определить кто создал бронь
+        event_data["extendedProperties"] = {
+            "private": {
+                "custom_creator": custom_creator
+            }
+        }
         try:
             response = await aiogoogle.as_service_account(
                 calendar_api.events.insert(calendarId=CALENDAR_ID, json=event_data)
@@ -41,3 +48,5 @@ async def create_google_calendar_event(event_data):
             return response
         except Exception as e:
             raise Exception(f"Ошибка при создании события: {str(e)}")
+
+

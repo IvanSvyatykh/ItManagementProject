@@ -74,7 +74,7 @@ ROOMS_ID = {
     "Зона отдыха 7 этаж": CHILL_ZONE_SEVEN,
     "7 этаж у проектора": CHILL_ZONE_SEVEN,
     "Спортивная": BLA_BLA,
-    "Терочная": TEROCHNAYA,
+    "Терочная": None,
 }
 
 MESSAGE_LIMIT = 1000
@@ -124,13 +124,11 @@ async def get_booking_status(room_name: str, chat_id: int) -> dict:
     events_today = await get_events(start_of_day, end_of_day)
     normalized_room_name = await normalize_location(room_name)
 
-    print(events_today)
-
     room_events = [
         event
         for event in events_today
         if await normalize_location(event.get("location", ""))
-        == normalized_room_name
+           == normalized_room_name
     ]
 
     if not room_events:
@@ -186,10 +184,8 @@ async def get_booking_status(room_name: str, chat_id: int) -> dict:
     }
 
 
-
-
 def split_message_into_pages(
-    text: str, limit: int = MESSAGE_LIMIT
+        text: str, limit: int = MESSAGE_LIMIT
 ) -> list[str]:
     lines = text.split("\n")
     pages, current_page = [], []
@@ -229,7 +225,7 @@ async def format_event(event: dict) -> str:
 
 
 async def get_events(
-    start_date: datetime, end_date: datetime
+        start_date: datetime, end_date: datetime
 ) -> list[dict]:
     async with Aiogoogle(service_account_creds=CREDS) as aiogoogle:
         calendar = await aiogoogle.discover("calendar", "v3")
@@ -258,7 +254,7 @@ async def get_next_event(location: str) -> list[dict]:
 
     for event in events_today:
         if location.lower() in (
-            (await normalize_location(event.get("location", ""))).lower()
+                (await normalize_location(event.get("location", ""))).lower()
         ):
             start_time = (
                 datetime.fromisoformat(event["start"]["dateTime"])
@@ -284,7 +280,7 @@ async def get_next_event(location: str) -> list[dict]:
 
 
 async def get_booked_slots_for_room(
-    room_name: str, start_date: datetime, end_date: datetime
+        room_name: str, start_date: datetime, end_date: datetime
 ) -> list[dict]:
     events = await get_events(start_date, end_date)
     booked_slots = []
@@ -313,7 +309,7 @@ async def get_booked_slots_for_room(
 
 
 def get_free_slots(
-    booked_slots: list[dict], day_start: datetime, day_end: datetime
+        booked_slots: list[dict], day_start: datetime, day_end: datetime
 ) -> list[dict]:
     free_slots = []
     current_time = day_start

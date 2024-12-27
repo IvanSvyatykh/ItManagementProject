@@ -2,6 +2,7 @@ from datetime import datetime, timedelta
 from pathlib import Path
 from database.db_core import IsDBUnitOfWork
 from services.utils.grapics_makers import create_hist_of_day_disribution
+import shutil
 
 
 async def get_people_disribution_on_kitchen_by_day(
@@ -28,7 +29,12 @@ async def get_people_disribution_on_kitchen_by_day(
         y.append(len(event.boxes_cords["bboxes"]))
         x.append(event.timestamp + timedelta(hours=5))
     if len(x) == 0 or len(y) == 0:
-        return None
+        shutil.copy(
+            Path("src/files/photos/no_photo.jpg"),
+            path,
+        )
+
+        return path
 
     await create_hist_of_day_disribution(
         y_data=y, x_data=x, path_to_png=path
